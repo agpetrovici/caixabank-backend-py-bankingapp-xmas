@@ -1,13 +1,22 @@
+import hashlib
 import re
 
 from flask import Blueprint, render_template, request, jsonify
 from flask_jwt_extended import create_access_token
-from werkzeug.security import generate_password_hash, check_password_hash
+
 # from flask_login import login_required, login_user, logout_user
 
 from app.models import User, db
 
 # from app.login import login_manager
+
+
+def generate_hashed_password(password: str) -> str:
+    salt = "your_salt_here"
+    password_salted = password + salt
+    hashed_password = hashlib.sha256(password_salted.encode()).hexdigest()
+    return hashed_password
+
 
 bp = Blueprint(
     "api",
@@ -53,9 +62,7 @@ def register():
         return jsonify({"msg": "Email already exists."}), 400
 
     # Create new user
-
-    hashed_password = generate_password_hash(password, salt_length=8)
-
+    hashed_password = generate_hashed_password(password)
     new_user = User(
         email=email, name=name, hashed_password=hashed_password, balance=0.0
     )
@@ -90,7 +97,8 @@ def login():
         return jsonify({"msg": f"User not found for the given email: {email}"}), 400
 
     # Verify password
-    if not check_password_hash(user.hashed_password, password):
+    hashed_password = generate_hashed_password(password)
+    if user.hashed_password != hashed_password:
         return jsonify({"msg": "Bad credentials."}), 401
 
     # Create JWT token
