@@ -4,7 +4,8 @@ from flask_jwt_extended import create_access_token
 
 # from flask_login import login_required, login_user, logout_user
 
-from app.blueprints.api.is_valid_email import is_valid_email
+
+from app.blueprints.api.register_utils import validate_registration_data
 from app.models import User, db
 
 # from app.login import login_manager
@@ -37,40 +38,32 @@ def index():
 def register():
     data = request.get_json()
 
-    # Check if all required fields are present
-    if not all(key in data for key in ["email", "password", "name"]):
-        return jsonify({"error": "All fields are required."}), 400
-
-    # Check for null/empty fields
-    if not all(data.values()):
-        return jsonify({"error": "No empty fields allowed."}), 400
-
-    email = data["email"]
-    password = data["password"]
-    name = data["name"]
-
-    # Validate email format
-    if not is_valid_email(email):
-        return jsonify({"error": f"Invalid email: {email}"}), 400
-
-    # Clean email by converting to lowercase and stripping whitespace
-    email = email.lower().strip()
-
-    # Check if email already exists
-    if User.query.filter_by(email=email).first():
-        return jsonify({"error": "Email already exists."}), 400
+    validated_data, error = validate_registration_data(data)
+    if error:
+        return jsonify(error[0]), error[1]
 
     # Create new user
-    hashed_password = generate_hashed_password(password)
+    hashed_password = generate_hashed_password(validated_data["password"])
     new_user = User(
-        email=email, name=name, hashed_password=hashed_password, balance=0.0
+        email=validated_data["email"],
+        name=validated_data["name"],
+        hashed_password=hashed_password,
+        balance=0.0,
     )
 
-    db.session.add(new_user)
-    db.session.commit()
+    try:
+        db.session.add(new_user)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 400
 
     return jsonify(
-        {"name": name, "hashedPassword": hashed_password, "email": email}
+        {
+            "name": validated_data["name"],
+            "hashedPassword": hashed_password,
+            "email": validated_data["email"],
+        }
     ), 201
 
 
