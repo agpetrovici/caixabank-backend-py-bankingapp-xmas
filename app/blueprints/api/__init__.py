@@ -1,11 +1,10 @@
 import hashlib
-import re
-
 from flask import Blueprint, render_template, request, jsonify
 from flask_jwt_extended import create_access_token
 
 # from flask_login import login_required, login_user, logout_user
 
+from app.blueprints.api.is_valid_email import is_valid_email
 from app.models import User, db
 
 # from app.login import login_manager
@@ -30,52 +29,6 @@ bp = Blueprint(
 @bp.route("/")
 def index():
     return render_template("api/index.html")
-
-
-def is_valid_email(email: str) -> bool:
-    # Check for basic email format using regex
-    if not email or not isinstance(email, str):
-        return False
-
-    # Remove any leading/trailing whitespace
-    email = email.strip()
-
-    # Check length constraints
-    if len(email) > 254:  # Maximum length per RFC 5321
-        return False
-
-    # Split into local and domain parts
-    try:
-        local, domain = email.rsplit("@", 1)
-    except ValueError:
-        return False
-
-    # Validate lengths of local and domain parts
-    if len(local) > 64 or len(domain) > 255:  # RFC 5321
-        return False
-
-    # Check for consecutive dots
-    if ".." in email:
-        return False
-
-    # Validate local part characters
-    local_pattern = r"^[a-zA-Z0-9!#$%&\'*+\-/=?^_`{|}~.]+$"
-    if not re.match(local_pattern, local):
-        return False
-
-    # Validate domain - must have at least one dot and valid characters
-    if "." not in domain:
-        return False
-
-    domain_pattern = r"^[a-zA-Z0-9.-]+$"
-    if not re.match(domain_pattern, domain):
-        return False
-
-    # Domain cannot start/end with hyphen or dot
-    if domain[0] in ".-" or domain[-1] in ".-":
-        return False
-
-    return True
 
 
 @bp.route("/auth/register", methods=["POST"])
