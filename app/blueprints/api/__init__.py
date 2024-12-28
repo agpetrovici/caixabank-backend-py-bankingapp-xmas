@@ -9,15 +9,6 @@ from app.models import User, db
 
 # from app.login import login_manager
 
-
-def generate_hashed_password(password: str) -> str:
-    salt = "3fe58cd8-aa3e-4c43-81a3-451972d4c9af"
-    password_salted = password + salt
-    # SHA512 produces a 128-character hexadecimal string
-    hashed_password = hashlib.sha512(password_salted.encode()).hexdigest()
-    return hashed_password
-
-
 bp = Blueprint(
     "api",
     __name__,
@@ -25,6 +16,16 @@ bp = Blueprint(
     static_folder="static",
     static_url_path="/static/api",
 )
+
+# region task 1
+
+
+def generate_hashed_password(password: str) -> str:
+    salt = "3fe58cd8-aa3e-4c43-81a3-451972d4c9af"
+    password_salted = password + salt
+    # SHA512 produces a 128-character hexadecimal string
+    hashed_password = hashlib.sha512(password_salted.encode()).hexdigest()
+    return hashed_password
 
 
 @bp.route("/")
@@ -103,3 +104,6 @@ def login():
     access_token = create_access_token(identity=user.id)
 
     return jsonify({"token": access_token}), 200
+
+
+# endregion
