@@ -12,7 +12,7 @@ from app.models import User, db
 
 
 def generate_hashed_password(password: str) -> str:
-    salt = "your_salt_here"
+    salt = "3fe58cd8-aa3e-4c43-81a3-451972d4c9af"
     password_salted = password + salt
     hashed_password = hashlib.sha256(password_salted.encode()).hexdigest()
     return hashed_password
@@ -43,11 +43,11 @@ def register():
 
     # Check if all required fields are present
     if not all(key in data for key in ["email", "password", "name"]):
-        return jsonify({"msg": "All fields are required."}), 400
+        return make_response("All fields are required.", 400)
 
     # Check for null/empty fields
     if not all(data.values()):
-        return jsonify({"msg": "No empty fields allowed."}), 400
+        return make_response("No empty fields allowed.", 400)
 
     email = data["email"]
     password = data["password"]
