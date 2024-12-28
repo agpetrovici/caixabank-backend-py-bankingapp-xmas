@@ -1,7 +1,7 @@
 import hashlib
 import re
 
-from flask import Blueprint, render_template, request, jsonify, make_response
+from flask import Blueprint, render_template, request, jsonify
 from flask_jwt_extended import create_access_token
 
 # from flask_login import login_required, login_user, logout_user
@@ -43,11 +43,11 @@ def register():
 
     # Check if all required fields are present
     if not all(key in data for key in ["email", "password", "name"]):
-        return make_response("All fields are required.", 400)
+        return jsonify({"error": "All fields are required."}), 400
 
     # Check for null/empty fields
     if not all(data.values()):
-        return make_response("No empty fields allowed.", 400)
+        return jsonify({"error": "No empty fields allowed."}), 400
 
     email = data["email"]
     password = data["password"]
@@ -55,11 +55,11 @@ def register():
 
     # Validate email format
     if not is_valid_email(email):
-        return make_response(f"Invalid email: {email}", 400)
+        return jsonify({"error": f"Invalid email: {email}"}), 400
 
     # Check if email already exists
     if User.query.filter_by(email=email).first():
-        return make_response("Email already exists.", 400)
+        return jsonify({"error": "Email already exists."}), 400
 
     # Create new user
     hashed_password = generate_hashed_password(password)
@@ -81,25 +81,25 @@ def login():
 
     # Check if email and password are provided
     if not data or "email" not in data or "password" not in data:
-        return make_response("Bad credentials.", 401)
+        return jsonify({"error": "Bad credentials."}), 401
 
     email = data.get("email")
     password = data.get("password")
 
     # Check for null/empty fields
     if not email or not password:
-        return make_response("Bad credentials.", 401)
+        return jsonify({"error": "Bad credentials."}), 401
 
     # Find user by email
     user = User.query.filter_by(email=email).first()
 
     if not user:
-        return make_response(f"User not found for the given email: {email}", 400)
+        return jsonify({"error": f"User not found for the given email: {email}"}), 400
 
     # Verify password
     hashed_password = generate_hashed_password(password)
     if user.hashed_password != hashed_password:
-        return make_response("Bad credentials.", 401)
+        return jsonify({"error": "Bad credentials."}), 401
 
     # Create JWT token
     access_token = create_access_token(identity=user.id)
