@@ -1,14 +1,11 @@
 import hashlib
-from flask import Blueprint, render_template, request, jsonify
-from flask_jwt_extended import create_access_token
+from datetime import datetime, timezone
 
-# from flask_login import login_required, login_user, logout_user
-
+from flask import Blueprint, request, jsonify
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 
 from app.blueprints.api.register_utils import validate_registration_data
-from app.models import User, db
-
-# from app.login import login_manager
+from app.models import User, db, RecurringExpense
 
 bp = Blueprint(
     "api",
@@ -27,11 +24,6 @@ def generate_hashed_password(password: str) -> str:
     # SHA512 produces a 128-character hexadecimal string
     hashed_password = hashlib.sha512(password_salted.encode()).hexdigest()
     return hashed_password
-
-
-@bp.route("/")
-def index():
-    return render_template("api/index.html")
 
 
 @bp.route("/auth/register", methods=["POST"])
@@ -97,6 +89,94 @@ def login():
     access_token = create_access_token(identity=str(user.id))
 
     return jsonify({"token": access_token}), 200
+
+
+# endregion
+
+
+# region task 2
+
+
+@bp.route("/recurring-expenses", methods=["POST"])
+@jwt_required()
+def add_recurring_expense():
+    data = request.get_json()
+
+    # Check if data was provided
+    if not data:
+        return jsonify({"msg": "No data provided."}), 400
+
+    # Check required fields
+    required_fields = ["expense_name", "amount", "frequency", "start_date"]
+    if not all(field in data for field in required_fields):
+        return jsonify({"msg": "No empty fields allowed."}), 400
+
+    # Check for null/empty values
+    if any(not data[field] for field in required_fields):
+        return jsonify({"msg": "No empty fields allowed."}), 400
+
+    try:
+        # Get current user from JWT token
+        current_user_id = get_jwt_identity()
+
+        # Parse start date
+        start_date = datetime.strptime(data["start_date"], "%Y-%m-%d")
+
+        # Create new recurring expense
+        new_expense = RecurringExpense(
+            user_id=current_user_id,
+            expense_name=data["expense_name"],
+            amount=float(data["amount"]),
+            frequency=data["frequency"],
+            start_date=start_date,
+            created_at=datetime.now(timezone.utc),
+        )
+
+        db.session.add(new_expense)
+        db.session.commit()
+
+        return jsonify(
+            {
+                "msg": "Recurring expense added successfully.",
+                "data": {
+                    "id": new_expense.id,
+                    "expense_name": new_expense.expense_name,
+                    "amount": new_expense.amount,
+                    "frequency": new_expense.frequency,
+                    "start_date": new_expense.start_date.strftime("%Y-%m-%d"),
+                },
+            }
+        ), 201
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"msg": str(e)}), 400
+
+
+@bp.route("/recurring-expenses", methods=["GET"])
+@jwt_required()
+def get_recurring_expenses():
+    current_user_id = get_jwt_identity()
+
+    try:
+        expenses = RecurringExpense.query.filter_by(user_id=current_user_id).all()
+
+        expenses_list = [
+            {
+                "id": expense.id,
+                "expense_name": expense.expense_name,
+                "amount": expense.amount,
+                "frequency": expense.frequency,
+                "start_date": expense.start_date.strftime("%Y-%m-%d"),
+                "created_at": expense.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+            }
+            for expense in expenses
+        ]
+
+        return jsonify(expenses_list), 200
+
+    except Exception as e:
+        return jsonify({"msg": str(e)}), 400
 
 
 # endregion
