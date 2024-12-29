@@ -8,12 +8,12 @@ from flask_jwt_extended import (
     get_jwt,
 )
 
-from app.blueprints.api.utils_exchange import get_exchange_data
-from app.blueprints.api.utils_auth import (
+from app.utils.utils_exchange import get_exchange_data
+from app.utils.utils_auth import (
     generate_hashed_password,
     validate_registration_data,
 )
-from app.blueprints.api.utils_transactions import (
+from app.utils.utils_transactions import (
     check_high_deviation,
     check_rapid_transactions,
     check_unusual_category,
