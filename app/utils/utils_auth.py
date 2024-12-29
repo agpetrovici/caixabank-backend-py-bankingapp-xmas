@@ -1,5 +1,4 @@
-import hashlib
-
+from passlib.hash import pbkdf2_sha256
 from pyisemail import is_email
 
 # from app.blueprints.api.is_valid_email import is_valid_email
@@ -8,11 +7,19 @@ from app.models import User
 
 
 def generate_hashed_password(password: str) -> str:
-    salt = "3fe58cd8-aa3e-4c43-81a3-451972d4c9af"
-    password_salted = password + salt
-    # SHA512 produces a 128-character hexadecimal string
-    hashed_password = hashlib.sha512(password_salted.encode()).hexdigest()
+    # Using pbkdf2_sha256 with high rounds (100000) for better security
+    # pbkdf2_sha256 automatically generates and handles the salt
+    # This is considered one of the best options in passlib for password hashing
+    hashed_password = pbkdf2_sha256.using(rounds=100000).hash(password)
     return hashed_password
+
+
+def verify_password(password: str, hashed_password: str) -> bool:
+    """
+    Verify if the provided password matches the hashed password.
+    The method extracts the salt from the hashed password automatically.
+    """
+    return pbkdf2_sha256.verify(password, hashed_password)
 
 
 def validate_registration_data(data: dict) -> tuple[dict, bool, int]:
