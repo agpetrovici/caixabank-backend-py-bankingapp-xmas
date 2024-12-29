@@ -25,7 +25,8 @@ def create_app(config_class=Config) -> Flask:
     JWTManager(app)
 
     app.register_blueprint(bp_api, url_prefix="/api")
-
+    with app.app_context():
+        db.create_all()
     return app
 
 
