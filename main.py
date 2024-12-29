@@ -3,11 +3,8 @@ import sys
 from pathlib import Path
 
 from dotenv import load_dotenv
-from flask import Flask, redirect, url_for
-# from flask_login import current_user
-
-
-# from app.login import login_manager
+from flask import Flask
+from flask_jwt_extended import JWTManager
 
 sys.path.append(str(Path(__file__).parent.parent))
 sys.path.append(str(Path(__file__).parent))
@@ -24,19 +21,10 @@ def create_app(config_class=Config) -> Flask:
     app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
     app.config.from_object(config_class)
     db.init_app(app)
-    from flask_jwt_extended import JWTManager
 
     JWTManager(app)
-    # login_manager.init_app(app)
 
     app.register_blueprint(bp_api, url_prefix="/api")
-
-    @app.route("/", methods=["GET", "POST"])
-    def index():
-        # if not current_user.is_authenticated:
-        #     return redirect(url_for("login.login"))
-        # return redirect(url_for("my-deliverables.index"))
-        return redirect(url_for("api.index"))
 
     return app
 
