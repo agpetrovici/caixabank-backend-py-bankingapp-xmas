@@ -32,17 +32,17 @@ def generate_hashed_password(password: str) -> str:
 
 @bp.route("/auth/register", methods=["POST"])
 def register():
-    data = request.get_json()
+    raw_data = request.get_json()
 
-    validated_data, error = validate_registration_data(data)
-    if error:
-        return jsonify(error[0]), error[1]
+    data, status, code = validate_registration_data(raw_data)
+    if not status:
+        return jsonify(data), code
 
     # Create new user
-    hashed_password = generate_hashed_password(validated_data["password"])
+    hashed_password = generate_hashed_password(data["password"])
     new_user = User(
-        email=validated_data["email"],
-        name=validated_data["name"],
+        email=data["email"],
+        name=data["name"],
         hashed_password=hashed_password,
         balance=0.0,
     )
@@ -56,9 +56,9 @@ def register():
 
     return jsonify(
         {
-            "name": validated_data["name"],
+            "name": data["name"],
             "hashedPassword": hashed_password,
-            "email": validated_data["email"],
+            "email": data["email"],
         }
     ), 201
 
