@@ -55,7 +55,7 @@ def register():
         db.session.commit()
     except Exception as e:
         db.session.rollback()
-        return jsonify({"error": str(e)}), 400
+        return jsonify({"msg": str(e)}), 400
 
     return jsonify(
         {
@@ -72,25 +72,25 @@ def login():
 
     # Check if email and password are provided
     if not data or "email" not in data or "password" not in data:
-        return jsonify({"error": "Bad credentials."}), 401
+        return jsonify({"msg": "Bad credentials."}), 401
 
     email = data.get("email")
     password = data.get("password")
 
     # Check for null/empty fields
     if not email or not password:
-        return jsonify({"error": "Bad credentials."}), 401
+        return jsonify({"msg": "Bad credentials."}), 401
 
     # Find user by email
     user = User.query.filter_by(email=email).first()
 
     if not user:
-        return jsonify({"error": f"User not found for the given email: {email}"}), 400
+        return jsonify({"msg": f"User not found for the given email: {email}"}), 400
 
     # Verify password
     hashed_password = generate_hashed_password(password)
     if user.hashed_password != hashed_password:
-        return jsonify({"error": "Bad credentials."}), 401
+        return jsonify({"msg": "Bad credentials."}), 401
 
     # Create JWT token
     claims = {"user_id": user.id}
