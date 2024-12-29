@@ -7,9 +7,7 @@ WORKDIR /app
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    FLASK_APP=main.py \
-    FLASK_PORT=3000 \
-    FLASK_HOST=0.0.0.0
+    FLASK_APP=app/app.py
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -27,8 +25,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application
 COPY . .
 
-# Expose port 3000
+# Expose port 3000 (matches the port in docker-compose.yml)
 EXPOSE 3000
 
-# Command to run the application directly with Python
-CMD ["python", "main.py"]
+# Command to run the application
+# Runs app.py
+CMD ["python", "-m", "flask", "--app", "main.py", "run", "--host=0.0.0.0", "--port=3000"]

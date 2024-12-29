@@ -13,10 +13,7 @@ services:
       MAIL_PORT: 1025
       SQLALCHEMY_DATABASE_URI: mysql+pymysql://root:root@mysql:3306/bankingapp
       FLASK_ENV: production
-      FLASK_PORT: 3000
-      FLASK_HOST: 0.0.0.0
-    volumes:
-      - ./app/certs:/app/app/certs  # Mount SSL certificates
+    command: python -m flask --app main.py run --host=0.0.0.0 --port=3000
     networks:
       - finservice_network
     restart: always
