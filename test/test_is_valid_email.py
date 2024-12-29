@@ -6,7 +6,7 @@ import pytest
 # Add the parent directory to Python path
 sys.path.append(str(Path(__file__).parent.parent))
 
-from app.blueprints.api.is_valid_email import is_valid_email
+from app.utils.utils_email_validator import is_valid_email
 
 
 def load_test_emails():

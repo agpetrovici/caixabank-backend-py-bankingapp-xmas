@@ -34,7 +34,7 @@ def is_valid_email(email: str) -> bool:
     if not local[-1].isalnum():
         return False
 
-    # Check local part only contains alphanumeric chars and underscore
+    # Check local paSrt only contains alphanumeric chars and underscore
     if not all(c.isalnum() or c == "." or c == "_" or c == "-" for c in local):
         return False
 
