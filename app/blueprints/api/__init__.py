@@ -1,5 +1,5 @@
 import hashlib
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import (
@@ -184,6 +184,135 @@ def get_recurring_expenses():
         ]
 
         return jsonify(expenses_list), 200
+
+    except Exception as e:
+        return jsonify({"msg": str(e)}), 400
+
+
+@bp.route("/recurring-expenses/<int:expense_id>", methods=["PUT"])
+@jwt_required()
+def update_recurring_expense(expense_id):
+    data = request.get_json()
+
+    # Check if data was provided
+    if not data:
+        return jsonify({"msg": "No data provided."}), 400
+
+    # Check required fields
+    required_fields = ["expense_name", "amount", "frequency", "start_date"]
+    if not all(field in data for field in required_fields):
+        return jsonify({"msg": "No empty fields allowed."}), 400
+
+    # Check for null/empty values
+    if any(not data[field] for field in required_fields):
+        return jsonify({"msg": "No empty fields allowed."}), 400
+
+    try:
+        current_user_id = get_current_user_id()
+
+        # Find the expense
+        expense = RecurringExpense.query.filter_by(
+            id=expense_id, user_id=current_user_id
+        ).first()
+
+        if not expense:
+            return jsonify({"msg": "Expense not found."}), 404
+
+        # Parse start date
+        start_date = datetime.strptime(data["start_date"], "%Y-%m-%d")
+
+        # Update expense fields
+        expense.expense_name = data["expense_name"]
+        expense.amount = float(data["amount"])
+        expense.frequency = data["frequency"]
+        expense.start_date = start_date
+
+        db.session.commit()
+
+        return jsonify(
+            {
+                "msg": "Recurring expense updated successfully.",
+                "data": {
+                    "id": expense.id,
+                    "expense_name": expense.expense_name,
+                    "amount": expense.amount,
+                    "frequency": expense.frequency,
+                    "start_date": expense.start_date.strftime("%Y-%m-%d"),
+                },
+            }
+        ), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"msg": str(e)}), 400
+
+
+@bp.route("/recurring-expenses/<int:expense_id>", methods=["DELETE"])
+@jwt_required()
+def delete_recurring_expense(expense_id):
+    try:
+        current_user_id = get_current_user_id()
+
+        # Find the expense
+        expense = RecurringExpense.query.filter_by(
+            id=expense_id, user_id=current_user_id
+        ).first()
+
+        if not expense:
+            return jsonify({"msg": "Expense not found."}), 404
+
+        # Delete the expense
+        db.session.delete(expense)
+        db.session.commit()
+
+        return jsonify({"msg": "Recurring expense deleted successfully."}), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"msg": str(e)}), 400
+
+
+@bp.route("/recurring-expenses/projection", methods=["GET"])
+@jwt_required()
+def get_expenses_projection():
+    try:
+        current_user_id = get_current_user_id()
+
+        # Get all recurring expenses for the user
+        expenses = RecurringExpense.query.filter_by(user_id=current_user_id).all()
+
+        # Start from current month
+        current_date = datetime.now(timezone.utc)
+        projections = []
+
+        # Calculate for next 12 months
+        for month_offset in range(12):
+            # Calculate target month
+            target_date = current_date + timedelta(days=32 * month_offset)
+            target_date = target_date.replace(day=1)  # First day of month
+
+            # Format as YYYY-MM
+            month_key = target_date.strftime("%Y-%m")
+
+            # Calculate total recurring expenses for this month
+            total_amount = 0.0
+
+            for expense in expenses:
+                if expense.frequency == "monthly":
+                    # Monthly expenses are always included
+                    total_amount += expense.amount
+
+                elif expense.frequency == "yearly":
+                    # Yearly expenses only included on their anniversary month
+                    if (
+                        target_date.month == expense.start_date.month
+                        and target_date.year >= expense.start_date.year
+                    ):
+                        total_amount += expense.amount
+
+            projections.append({"month": month_key, "recurring_expenses": total_amount})
+
+        return jsonify(projections), 200
 
     except Exception as e:
         return jsonify({"msg": str(e)}), 400
