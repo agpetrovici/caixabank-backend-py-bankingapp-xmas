@@ -40,6 +40,9 @@ def register():
 
     # Sanitize input data
     sanitized_data = sanitize_registration_data(raw_data)
+
+    # Validate sanitized data
+    data, status, code = validate_registration_data(sanitized_data)
     if not status:
         return jsonify(data), code
 

@@ -27,6 +27,36 @@ def password_matches(password: str, hashed_password: str) -> bool:
     return bcrypt.checkpw(password.encode("utf-8"), hashed_password.encode("utf-8"))
 
 
+def validate_password(password: str) -> tuple[bool, str]:
+    """
+    Validate password strength.
+    Returns (is_valid, error_message)
+
+    Rules:
+    - Minimum 8 characters
+    - At least one uppercase letter
+    - At least one lowercase letter
+    - At least one number
+    - At least one special character
+    """
+    if len(password) < 8:
+        return False, "Password must be at least 8 characters long"
+
+    if not re.search(r"[A-Z]", password):
+        return False, "Password must contain at least one uppercase letter"
+
+    if not re.search(r"[a-z]", password):
+        return False, "Password must contain at least one lowercase letter"
+
+    if not re.search(r"\d", password):
+        return False, "Password must contain at least one number"
+
+    if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
+        return False, "Password must contain at least one special character"
+
+    return True, ""
+
+
 def validate_registration_data(data: dict) -> tuple[dict, bool, int]:
     status = False
     code = 400
@@ -41,6 +71,11 @@ def validate_registration_data(data: dict) -> tuple[dict, bool, int]:
     email = data["email"]
     password = data["password"]
     name = data["name"]
+
+    # Validate password strength
+    is_valid_password, password_error = validate_password(password)
+    if not is_valid_password:
+        return {"msg": password_error}, status, code
 
     # Validate email format
     if not is_email(email):
