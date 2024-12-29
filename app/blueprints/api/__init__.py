@@ -94,7 +94,7 @@ def login():
         return jsonify({"error": "Bad credentials."}), 401
 
     # Create JWT token
-    access_token = create_access_token(identity=user.id)
+    access_token = create_access_token(identity=str(user.id))
 
     return jsonify({"token": access_token}), 200
 
