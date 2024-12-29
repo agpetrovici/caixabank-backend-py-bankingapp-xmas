@@ -11,7 +11,7 @@ from flask_jwt_extended import (
     get_jwt,
 )
 
-from app.blueprints.api.register_utils import validate_registration_data
+from app.blueprints.api.utils_registration import validate_registration_data
 from app.blueprints.api.utils_transactions import (
     check_high_deviation,
     check_rapid_transactions,
