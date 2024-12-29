@@ -1,4 +1,6 @@
-from app.blueprints.api.is_valid_email import is_valid_email
+from pyisemail import is_email
+
+# from app.blueprints.api.is_valid_email import is_valid_email
 
 from app.models import User
 
@@ -19,7 +21,7 @@ def validate_registration_data(
     name = data["name"]
 
     # Validate email format
-    if not is_valid_email(email):
+    if not is_email(email):
         return None, ({"error": f"Invalid email: {email}"}, 400)
 
     # Clean email by converting to lowercase and stripping whitespace

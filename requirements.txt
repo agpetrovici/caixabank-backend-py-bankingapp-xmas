@@ -7,6 +7,9 @@ click==8.1.8 ; python_version >= "3.12" and python_version < "4.0" \
 colorama==0.4.6 ; python_version >= "3.12" and python_version < "4.0" and (sys_platform == "win32" or platform_system == "Windows") \
     --hash=sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44 \
     --hash=sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6
+dnspython==2.7.0 ; python_version >= "3.12" and python_version < "4.0" \
+    --hash=sha256:b4c34b7d10b51bcc3a5071e7b8dee77939f1e878477eeecc965e9835f63c6c86 \
+    --hash=sha256:ce9c432eda0dc91cf618a5cedf1a4e142651196bbcd2c80e89ed5a907e5cfaf1
 flask-jwt-extended==4.7.1 ; python_version >= "3.12" and python_version < "4" \
     --hash=sha256:52f35bf0985354d7fb7b876e2eb0e0b141aaff865a22ff6cc33d9a18aa987978 \
     --hash=sha256:8085d6757505b6f3291a2638c84d207e8f0ad0de662d1f46aa2f77e658a0c976
@@ -170,6 +173,9 @@ packaging==24.2 ; python_version >= "3.12" and python_version < "4.0" \
 pluggy==1.5.0 ; python_version >= "3.12" and python_version < "4.0" \
     --hash=sha256:2cffa88e94fdc978c4c574f15f9e59b7f4201d439195c3715ca9e2486f1d0cf1 \
     --hash=sha256:44e1ad92c8ca002de6377e165f3e0f1be63266ab4d554740532335b9d75ea669
+pyisemail==2.0.1 ; python_version >= "3.12" and python_version < "4.0" \
+    --hash=sha256:3d2bebd159f436673219d024a3f02bed1b468c793df9a5fa08d72b7d4b4f6cb4 \
+    --hash=sha256:daf4b3fb2150a38f406b0aaba729e19fcd638a6d1c0549c25ff54c7b804618f8
 pyjwt==2.10.1 ; python_version >= "3.12" and python_version < "4" \
     --hash=sha256:3cc5772eb20009233caf06e9d8a0577824723b44e6648ee0a2aedb6cf9381953 \
     --hash=sha256:dcdd193e30abefd5debf142f9adfcdd2b58004e644f25406ffaebd50bd98dacb
