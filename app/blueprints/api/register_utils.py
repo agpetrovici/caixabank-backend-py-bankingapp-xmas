@@ -21,8 +21,8 @@ def validate_registration_data(data: dict) -> tuple[dict, bool, int]:
     name = data["name"]
 
     # Validate email format
-    # if not is_email(email):
-    #     return {"error": f"Invalid email: {email}"}, status, code
+    if not is_email(email):
+        return {"error": f"Invalid email: {email}"}, status, code
 
     # Clean email by converting to lowercase and stripping whitespace
     email = email.lower().strip()
