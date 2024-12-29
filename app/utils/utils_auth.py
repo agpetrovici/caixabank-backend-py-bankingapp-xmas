@@ -14,7 +14,7 @@ def generate_hashed_password(password: str) -> str:
     return hashed_password
 
 
-def verify_password(password: str, hashed_password: str) -> bool:
+def password_matches(password: str, hashed_password: str) -> bool:
     """
     Verify if the provided password matches the hashed password.
     The method extracts the salt from the hashed password automatically.

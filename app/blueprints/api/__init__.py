@@ -12,7 +12,7 @@ from app.utils.utils_exchange import get_exchange_data
 from app.utils.utils_auth import (
     generate_hashed_password,
     validate_registration_data,
-    verify_password,
+    password_matches,
 )
 from app.utils.utils_transactions import (
     check_high_deviation,
@@ -88,7 +88,7 @@ def login():
         return jsonify({"msg": f"User not found for the given email: {email}"}), 400
 
     # Verify password
-    if verify_password(password, user.hashed_password):
+    if not password_matches(password, user.hashed_password):
         return jsonify({"msg": "Bad credentials."}), 401
 
     # Create JWT token
