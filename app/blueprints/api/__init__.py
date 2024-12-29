@@ -1,5 +1,8 @@
 import hashlib
 from datetime import datetime, timezone, timedelta
+import csv
+from pathlib import Path
+from typing import Tuple, Optional
 
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import (
@@ -313,6 +316,143 @@ def get_expenses_projection():
             projections.append({"month": month_key, "recurring_expenses": total_amount})
 
         return jsonify(projections), 200
+
+    except Exception as e:
+        return jsonify({"msg": str(e)}), 400
+
+
+# endregion
+
+# region task 3
+
+
+def load_exchange_data() -> Tuple[dict, dict]:
+    """Load exchange rates and fees from CSV files"""
+    rates = {}
+    fees = {}
+
+    # Load exchange rates
+    rates_file = Path("app/exchange_rates.csv")
+    with open(rates_file, "r") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            key = f"{row['currency_from']}-{row['currency_to']}"
+            rates[key] = float(row["rate"])
+
+    # Load exchange fees
+    fees_file = Path("app/exchange_fees.csv")
+    with open(fees_file, "r") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            key = f"{row['currency_from']}-{row['currency_to']}"
+            fees[key] = float(row["fee"])
+
+    return rates, fees
+
+
+# Cache exchange data
+EXCHANGE_RATES, EXCHANGE_FEES = load_exchange_data()
+
+
+def get_exchange_data(
+    source: str, target: str
+) -> Tuple[Optional[float], Optional[float]]:
+    """Get exchange rate and fee for a currency pair"""
+    key = f"{source}-{target}"
+    rate = EXCHANGE_RATES.get(key)
+    fee = EXCHANGE_FEES.get(key)
+    return rate, fee
+
+
+@bp.route("/transfers/simulate", methods=["POST"])
+@jwt_required()
+def simulate_transfer():
+    data = request.get_json()
+
+    # Check if data was provided
+    if not data:
+        return jsonify({"msg": "No empty fields allowed."}), 400
+
+    # Check required fields
+    required_fields = ["amount", "currency_from", "currency_to"]
+    if not all(field in data for field in required_fields):
+        return jsonify({"msg": "No empty fields allowed."}), 400
+
+    # Check for null/empty values
+    if any(not data[field] for field in required_fields):
+        return jsonify({"msg": "No empty fields allowed."}), 400
+
+    try:
+        amount = float(data["amount"])
+        source_currency = data["currency_from"]
+        target_currency = data["currency_to"]
+
+        # Get exchange rate and fee
+        rate, fee = get_exchange_data(source_currency, target_currency)
+
+        if rate is None or fee is None:
+            return jsonify(
+                {"msg": "Invalid currencies or no exchange data available."}
+            ), 404
+
+        # Calculate final amount using formula: target_amount = source_amount × (1-fee) × rate
+        final_amount = amount * (1 - fee) * rate
+
+        return jsonify({"msg": f"Amount in target currency: {final_amount:.2f}"}), 201
+
+    except ValueError:
+        return jsonify({"msg": "Invalid amount value."}), 400
+    except Exception as e:
+        return jsonify({"msg": str(e)}), 400
+
+
+@bp.route("/transfers/fees", methods=["GET"])
+@jwt_required()
+def get_transfer_fees():
+    # Get query parameters
+    source_currency = request.args.get("currency_from")
+    target_currency = request.args.get("currency_to")
+
+    # Check if parameters are provided
+    if not source_currency or not target_currency:
+        return jsonify({"msg": "No empty fields allowed."}), 400
+
+    try:
+        # Get exchange rate and fee
+        rate, fee = get_exchange_data(source_currency, target_currency)
+
+        if fee is None:
+            return jsonify(
+                {"msg": "No fee information available for these currencies."}
+            ), 404
+
+        return jsonify({"fee": fee}), 200
+
+    except Exception as e:
+        return jsonify({"msg": str(e)}), 400
+
+
+@bp.route("/transfers/rates", methods=["GET"])
+@jwt_required()
+def get_exchange_rates():
+    # Get query parameters
+    source_currency = request.args.get("currency_from")
+    target_currency = request.args.get("currency_to")
+
+    # Check if parameters are provided
+    if not source_currency or not target_currency:
+        return jsonify({"msg": "No empty fields allowed."}), 400
+
+    try:
+        # Get exchange rate and fee
+        rate, fee = get_exchange_data(source_currency, target_currency)
+
+        if rate is None:
+            return jsonify(
+                {"msg": "No exchange rate available for these currencies."}
+            ), 404
+
+        return jsonify({"rate": rate}), 200
 
     except Exception as e:
         return jsonify({"msg": str(e)}), 400
