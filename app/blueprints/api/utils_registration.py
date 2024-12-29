@@ -1,8 +1,18 @@
+import hashlib
+
 from pyisemail import is_email
 
 # from app.blueprints.api.is_valid_email import is_valid_email
 
 from app.models import User
+
+
+def generate_hashed_password(password: str) -> str:
+    salt = "3fe58cd8-aa3e-4c43-81a3-451972d4c9af"
+    password_salted = password + salt
+    # SHA512 produces a 128-character hexadecimal string
+    hashed_password = hashlib.sha512(password_salted.encode()).hexdigest()
+    return hashed_password
 
 
 def validate_registration_data(data: dict) -> tuple[dict, bool, int]:

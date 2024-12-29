@@ -1,8 +1,5 @@
-import csv
-import hashlib
 from datetime import datetime, timezone, timedelta
-from pathlib import Path
-from typing import Tuple, Optional
+
 
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import (
@@ -11,7 +8,11 @@ from flask_jwt_extended import (
     get_jwt,
 )
 
-from app.blueprints.api.utils_registration import validate_registration_data
+from app.blueprints.api.utils_exchange import get_exchange_data
+from app.blueprints.api.utils_registration import (
+    generate_hashed_password,
+    validate_registration_data,
+)
 from app.blueprints.api.utils_transactions import (
     check_high_deviation,
     check_rapid_transactions,
@@ -28,14 +29,6 @@ bp = Blueprint(
 )
 
 # region task 1
-
-
-def generate_hashed_password(password: str) -> str:
-    salt = "3fe58cd8-aa3e-4c43-81a3-451972d4c9af"
-    password_salted = password + salt
-    # SHA512 produces a 128-character hexadecimal string
-    hashed_password = hashlib.sha512(password_salted.encode()).hexdigest()
-    return hashed_password
 
 
 @bp.route("/auth/register", methods=["POST"])
@@ -332,44 +325,6 @@ def get_expenses_projection():
 
 
 # region task 3
-
-
-def load_exchange_data() -> Tuple[dict, dict]:
-    """Load exchange rates and fees from CSV files"""
-    rates = {}
-    fees = {}
-
-    # Load exchange rates
-    rates_file = Path("app/exchange_rates.csv")
-    with open(rates_file, "r") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            key = f"{row['currency_from']}-{row['currency_to']}"
-            rates[key] = float(row["rate"])
-
-    # Load exchange fees
-    fees_file = Path("app/exchange_fees.csv")
-    with open(fees_file, "r") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            key = f"{row['currency_from']}-{row['currency_to']}"
-            fees[key] = float(row["fee"])
-
-    return rates, fees
-
-
-# Cache exchange data
-EXCHANGE_RATES, EXCHANGE_FEES = load_exchange_data()
-
-
-def get_exchange_data(
-    source: str, target: str
-) -> Tuple[Optional[float], Optional[float]]:
-    """Get exchange rate and fee for a currency pair"""
-    key = f"{source}-{target}"
-    rate = EXCHANGE_RATES.get(key)
-    fee = EXCHANGE_FEES.get(key)
-    return rate, fee
 
 
 @bp.route("/transfers/simulate", methods=["POST"])
