@@ -2,7 +2,11 @@ import hashlib
 from datetime import datetime, timezone
 
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import (
+    create_access_token,
+    jwt_required,
+    get_jwt,
+)
 
 from app.blueprints.api.register_utils import validate_registration_data
 from app.models import User, db, RecurringExpense
@@ -99,6 +103,8 @@ def login():
 
 
 # region task 2
+def get_current_user_id():
+    return get_jwt()["user_id"]
 
 
 @bp.route("/recurring-expenses", methods=["POST"])
@@ -121,7 +127,7 @@ def add_recurring_expense():
 
     try:
         # Get current user from JWT token
-        current_user_id = get_jwt_identity()
+        current_user_id = get_current_user_id()
 
         # Parse start date
         start_date = datetime.strptime(data["start_date"], "%Y-%m-%d")
@@ -160,7 +166,7 @@ def add_recurring_expense():
 @bp.route("/recurring-expenses", methods=["GET"])
 @jwt_required()
 def get_recurring_expenses():
-    current_user_id = get_jwt_identity()
+    current_user_id = get_current_user_id()
 
     try:
         expenses = RecurringExpense.query.filter_by(user_id=current_user_id).all()
