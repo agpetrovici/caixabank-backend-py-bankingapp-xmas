@@ -1,4 +1,4 @@
-from passlib.hash import pbkdf2_sha256
+import bcrypt
 from pyisemail import is_email
 
 # from app.blueprints.api.is_valid_email import is_valid_email
@@ -7,19 +7,21 @@ from app.models import User
 
 
 def generate_hashed_password(password: str) -> str:
-    # Using pbkdf2_sha256 with high rounds (100000) for better security
-    # pbkdf2_sha256 automatically generates and handles the salt
-    # This is considered one of the best options in passlib for password hashing
-    hashed_password = pbkdf2_sha256.using(rounds=100000).hash(password)
-    return hashed_password
+    """
+    Generate a hashed password using bcrypt.
+    bcrypt automatically generates a salt and embeds it in the hash.
+    """
+    # bcrypt requires the password to be encoded as bytes
+    hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
+    return hashed_password.decode("utf-8")  # Decode to return as a string
 
 
 def password_matches(password: str, hashed_password: str) -> bool:
     """
-    Verify if the provided password matches the hashed password.
+    Verify if the provided password matches the bcrypt hashed password.
     The method extracts the salt from the hashed password automatically.
     """
-    return pbkdf2_sha256.verify(password, hashed_password)
+    return bcrypt.checkpw(password.encode("utf-8"), hashed_password.encode("utf-8"))
 
 
 def validate_registration_data(data: dict) -> tuple[dict, bool, int]:
