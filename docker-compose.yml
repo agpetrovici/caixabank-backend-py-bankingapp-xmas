@@ -1,5 +1,7 @@
+version: '3.8'
+
 services:
-  web:
+  app:
     build:
       context: .
       dockerfile: Dockerfile
@@ -12,8 +14,6 @@ services:
       MAIL_SERVER: smtp
       MAIL_PORT: 1025
       SQLALCHEMY_DATABASE_URI: mysql+pymysql://root:root@mysql:3306/bankingapp
-      FLASK_ENV: production
-    command: python -m flask --app main.py run --host=0.0.0.0 --port=3000
     networks:
       - finservice_network
     restart: always
@@ -39,6 +39,7 @@ services:
     networks:
       - finservice_network
     restart: always
+
 
 networks:
   finservice_network:
