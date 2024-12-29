@@ -114,6 +114,9 @@ flask-jwt-extended==4.7.1 ; python_version >= "3.12" and python_version < "4" \
 flask-login==0.6.3 ; python_version >= "3.12" and python_version < "4.0" \
     --hash=sha256:5e23d14a607ef12806c699590b89d0f0e0d67baeec599d75947bf9c147330333 \
     --hash=sha256:849b25b82a436bf830a054e74214074af59097171562ab10bfa999e6b78aae5d
+flask-mail==0.10.0 ; python_version >= "3.12" and python_version < "4.0" \
+    --hash=sha256:44083e7b02bbcce792209c06252f8569dd5a325a7aaa76afe7330422bd97881d \
+    --hash=sha256:a451e490931bb3441d9b11ebab6812a16bfa81855792ae1bf9c1e1e22c4e51e7
 flask-sqlalchemy==3.1.1 ; python_version >= "3.12" and python_version < "4.0" \
     --hash=sha256:4ba4be7f419dc72f4efd8802d69974803c37259dd42f3913b0dcf75c9447e0a0 \
     --hash=sha256:e4b68bb881802dda1a7d878b2fc84c06d1ee57fb40b874d3dc97dabfa36b8312
