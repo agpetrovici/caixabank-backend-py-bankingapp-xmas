@@ -19,6 +19,7 @@ from app.blueprints.api.utils_transactions import (
     check_unusual_category,
 )
 from app.models import db, User, RecurringExpense, Alert, Transaction
+from app.utils.utils_email import send_alert_email
 
 bp = Blueprint(
     "api",
@@ -666,6 +667,28 @@ def add_transaction():
 
         db.session.add(new_transaction)
         db.session.commit()
+
+        # Check alerts after transaction
+        alerts = Alert.query.filter_by(user_id=current_user_id).all()
+
+        for alert in alerts:
+            # Check savings goal alerts
+            if alert.target_amount and user.balance >= alert.alert_threshold:
+                send_alert_email(
+                    user.email,
+                    user.name,
+                    "savings",
+                    alert_target_amount=alert.target_amount,
+                )
+
+            # Check balance drop alerts
+            if alert.balance_drop_threshold and amount < -alert.balance_drop_threshold:
+                send_alert_email(
+                    user.email,
+                    user.name,
+                    "balance_drop",
+                    alert_balance_drop_threshold=alert.balance_drop_threshold,
+                )
 
         return jsonify(
             {
