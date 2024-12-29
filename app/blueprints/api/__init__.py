@@ -13,6 +13,7 @@ from app.utils.utils_auth import (
     generate_hashed_password,
     validate_registration_data,
     password_matches,
+    sanitize_registration_data,
 )
 from app.utils.utils_transactions import (
     check_high_deviation,
@@ -37,11 +38,12 @@ bp = Blueprint(
 def register():
     raw_data = request.get_json()
 
-    data, status, code = validate_registration_data(raw_data)
+    # Sanitize input data
+    sanitized_data = sanitize_registration_data(raw_data)
     if not status:
         return jsonify(data), code
 
-    # Create new user
+    # Create new user with sanitized data
     hashed_password = generate_hashed_password(data["password"])
     new_user = User(
         email=data["email"],

@@ -1,5 +1,8 @@
 import bcrypt
 from pyisemail import is_email
+import bleach
+from html import escape
+import re
 
 # from app.blueprints.api.is_valid_email import is_valid_email
 
@@ -53,3 +56,35 @@ def validate_registration_data(data: dict) -> tuple[dict, bool, int]:
     status = True
     code = 200
     return {"email": email, "password": password, "name": name}, status, code
+
+
+def sanitize_input(data: str) -> str:
+    """
+    Sanitize input string to prevent XSS attacks.
+    - Escapes HTML special characters
+    - Removes potentially dangerous HTML tags and attributes
+    """
+    if not isinstance(data, str):
+        return data
+
+    # First escape HTML special characters
+    escaped = escape(data)
+
+    # Then clean any remaining HTML tags
+    cleaned = bleach.clean(
+        escaped,
+        tags=[],  # No HTML tags allowed
+        attributes={},  # No attributes allowed
+        strip=True,  # Strip disallowed tags
+    )
+
+    return cleaned.strip()
+
+
+def sanitize_registration_data(data: dict) -> dict:
+    """Sanitize all registration input fields"""
+    return {
+        "email": sanitize_input(data.get("email", "")),
+        "name": sanitize_input(data.get("name", "")),
+        "password": data.get("password", ""),  # Don't sanitize password
+    }
