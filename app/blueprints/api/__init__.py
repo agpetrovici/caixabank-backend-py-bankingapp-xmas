@@ -9,7 +9,7 @@ from flask_jwt_extended import (
 )
 
 from app.blueprints.api.utils_exchange import get_exchange_data
-from app.blueprints.api.utils_registration import (
+from app.blueprints.api.utils_auth import (
     generate_hashed_password,
     validate_registration_data,
 )
