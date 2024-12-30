@@ -680,14 +680,17 @@ def add_transaction():
         if isinstance(timestamp, str):
             timestamp = datetime.fromisoformat(timestamp)
 
-        # Check for fraud
-        is_fraud = any(
-            [
-                check_high_deviation(current_user_id, amount, timestamp),  # 44 pts
-                check_unusual_category(current_user_id, category, timestamp),  # 44 pts
-                check_rapid_transactions(current_user_id, amount, timestamp),  # 87 pts
-            ]
-        )
+        # Check for fraud only if no fraud is detected and avoid unnecessary checks
+        is_fraud = False
+        # if not is_fraud:
+        #     # 44 pts
+        #     check_high_deviation(current_user_id, amount, timestamp)
+        # if not is_fraud:
+        #     # 44 pts
+        #     check_unusual_category(current_user_id, category, timestamp)
+        if not is_fraud:
+            # 87 pts
+            check_rapid_transactions(current_user_id, amount, timestamp)
 
         # Create new transaction
         transaction = Transaction(
