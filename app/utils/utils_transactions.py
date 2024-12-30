@@ -7,7 +7,7 @@ def check_high_deviation(user_id: int, amount: float, timestamp: datetime) -> bo
 
     # Get transactions from last 90 days
     ninety_days_ago = timestamp - timedelta(days=90)
-    past_transactions = Transaction.query.filter(
+    past_transactions: list[Transaction] = Transaction.query.filter(
         Transaction.user_id == user_id,
         Transaction.timestamp >= ninety_days_ago,
         Transaction.timestamp < timestamp,
