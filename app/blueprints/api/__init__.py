@@ -296,14 +296,15 @@ def get_expenses_projection():
             user_id=current_user_id
         ).all()
 
-        # Start from current month
-        current_date = datetime.now(timezone.utc)
+        # Start from next month
+        start_date = datetime.now(timezone.utc).replace(day=1) + timedelta(days=32)
+        start_date = start_date.replace(day=1)  # Ensure first day of next month
         projections = []
 
         # Calculate for next 12 months
         for month_offset in range(12):
             # Calculate target month
-            target_date = current_date + timedelta(days=32 * month_offset)
+            target_date = start_date + timedelta(days=32 * month_offset)
             target_date = target_date.replace(day=1)  # First day of month
 
             # Format as YYYY-MM
