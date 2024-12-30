@@ -120,8 +120,11 @@ def sanitize_input(data: str) -> str:
 
 def sanitize_registration_data(data: dict) -> dict:
     """Sanitize all registration input fields"""
-    return {
-        "email": sanitize_input(data.get("email", "")),
-        "name": sanitize_input(data.get("name", "")),
-        "password": data.get("password", ""),  # Don't sanitize password
-    }
+    output = dict()
+    for key, value in data.items():
+        if key == "password":
+            # Don't sanitize password
+            output[key] = value
+        else:
+            output[key] = sanitize_input(value)
+    return output
