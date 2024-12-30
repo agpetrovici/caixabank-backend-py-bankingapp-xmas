@@ -336,12 +336,12 @@ def get_expenses_projection():
                         total_amount += expense.amount
 
             # Calculate projected balance by subtracting recurring expenses (because positive values are expenses and negative are income)
-            projected_balance = current_balance - total_amount
+            current_balance -= total_amount
             projections.append(
                 {
                     "month": month_key,
                     # "recurring_expenses": total_amount,
-                    "balance": projected_balance,
+                    "balance": current_balance,
                 }
             )
 
