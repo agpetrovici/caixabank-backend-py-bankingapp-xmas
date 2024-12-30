@@ -297,13 +297,16 @@ def get_expenses_projection():
         current_user_id = get_current_user_id()
 
         # Get all recurring expenses for the user
+        # Get current user's balance
+        user = User.query.get(current_user_id)
+        current_balance = user.balance
         expenses: List[RecurringExpense] = RecurringExpense.query.filter_by(
             user_id=current_user_id
         ).all()
 
-        # Start from next month
-        start_date = datetime.now(timezone.utc).replace(day=1) + timedelta(days=32)
-        start_date = start_date.replace(day=1)  # Ensure first day of next month
+        # Start from this month
+        start_date = datetime.now(timezone.utc)  # .replace(day=1) + timedelta(days=32)
+        # start_date = start_date.replace(day=1)  # Ensure first day of next month
         projections = []
 
         # Calculate for next 12 months
@@ -320,8 +323,8 @@ def get_expenses_projection():
 
             for expense in expenses:
                 if expense.frequency == "monthly":
-                    # Monthly expenses are included if created on or before target date
-                    if expense.start_date.replace(tzinfo=timezone.utc) <= target_date:
+                    # Monthly expenses are included if created after start_date
+                    if expense.start_date.replace(tzinfo=timezone.utc) >= start_date:
                         total_amount += expense.amount
 
                 elif expense.frequency == "yearly":
@@ -332,7 +335,15 @@ def get_expenses_projection():
                     ):
                         total_amount += expense.amount
 
-            projections.append({"month": month_key, "recurring_expenses": total_amount})
+            # Calculate projected balance by subtracting recurring expenses (because positive values are expenses and negative are income)
+            projected_balance = current_balance - total_amount
+            projections.append(
+                {
+                    "month": month_key,
+                    "recurring_expenses": total_amount,
+                    "balance": projected_balance,
+                }
+            )
 
         return jsonify(projections), 200
 
