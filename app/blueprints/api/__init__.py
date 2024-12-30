@@ -120,6 +120,7 @@ def get_current_user_id():
 @bp.route("/recurring-expenses", methods=["POST"])
 @jwt_required()
 def add_recurring_expense():
+    # 100 pts
     if not request.is_json:
         return jsonify({"msg": "Content type must be application/json"}), 415
 
@@ -176,30 +177,30 @@ def add_recurring_expense():
         return jsonify({"msg": str(e)}), 400
 
 
-# @bp.route("/recurring-expenses", methods=["GET"])
-# @jwt_required()
-# def get_recurring_expenses():
-#     current_user_id = get_current_user_id()
+@bp.route("/recurring-expenses", methods=["GET"])
+@jwt_required()
+def get_recurring_expenses():
+    current_user_id = get_current_user_id()
 
-#     try:
-#         expenses = RecurringExpense.query.filter_by(user_id=current_user_id).all()
+    try:
+        expenses = RecurringExpense.query.filter_by(user_id=current_user_id).all()
 
-#         expenses_list = [
-#             {
-#                 "id": expense.id,
-#                 "expense_name": expense.expense_name,
-#                 "amount": expense.amount,
-#                 "frequency": expense.frequency,
-#                 "start_date": expense.start_date.strftime("%Y-%m-%d"),
-#                 "created_at": expense.created_at.strftime("%Y-%m-%d %H:%M:%S"),
-#             }
-#             for expense in expenses
-#         ]
+        expenses_list = [
+            {
+                "id": expense.id,
+                "expense_name": expense.expense_name,
+                "amount": expense.amount,
+                "frequency": expense.frequency,
+                "start_date": expense.start_date.strftime("%Y-%m-%d"),
+                "created_at": expense.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+            }
+            for expense in expenses
+        ]
 
-#         return jsonify(expenses_list), 200
+        return jsonify(expenses_list), 200
 
-#     except Exception as e:
-#         return jsonify({"msg": str(e)}), 400
+    except Exception as e:
+        return jsonify({"msg": str(e)}), 400
 
 
 # @bp.route("/recurring-expenses/<int:expense_id>", methods=["PUT"])
