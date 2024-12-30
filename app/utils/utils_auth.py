@@ -80,8 +80,8 @@ def validate_registration_data(data: dict) -> tuple[dict, bool, int]:
     #     return {"msg": password_error}, status, code
 
     # Validate email format
-    # if not is_email(email):
-    return {"msg": f"Invalid email: {email}"}, status, code
+    if not is_email(email):
+        return {"msg": f"Invalid email: {email}"}, status, code
 
     # Clean email by converting to lowercase and stripping whitespace
     email = email.lower().strip()
