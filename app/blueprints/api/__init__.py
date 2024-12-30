@@ -698,7 +698,7 @@ def add_transaction():
             amount=amount,
             category=category,
             timestamp=timestamp,
-            fraud=int(is_fraud),
+            fraud=is_fraud,
         )
 
         # Update user balance
