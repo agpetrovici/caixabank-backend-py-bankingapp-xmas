@@ -292,6 +292,7 @@ def delete_recurring_expense(expense_id):
 @bp.route("/recurring-expenses/projection", methods=["GET"])
 @jwt_required()
 def get_expenses_projection():
+    # 0 pts
     try:
         current_user_id = get_current_user_id()
 
@@ -665,13 +666,14 @@ def add_transaction():
         timestamp = datetime.now(timezone.utc)
 
         # Check for fraud
-        is_fraud = any(
-            [
-                # check_high_deviation(current_user_id, amount, timestamp),  # 219 pts
-                # check_unusual_category(current_user_id, category, timestamp),  # 263 pts
-                check_rapid_transactions(current_user_id, amount, timestamp),
-            ]
-        )
+        # is_fraud = any(
+        #     [
+        #         # check_high_deviation(current_user_id, amount, timestamp),  # 219 pts
+        #         # check_unusual_category(current_user_id, category, timestamp),  # 263 pts
+        #         # check_rapid_transactions(current_user_id, amount, timestamp),  # 306 pts
+        #     ]
+        # )
+        is_fraud = False
 
         # Create new transaction
         new_transaction = Transaction(
