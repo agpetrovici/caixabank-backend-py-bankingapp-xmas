@@ -207,6 +207,7 @@ def get_recurring_expenses():
 @bp.route("/recurring-expenses/<int:expense_id>", methods=["PUT"])
 @jwt_required()
 def update_recurring_expense(expense_id):
+    # 100 pts
     data = request.get_json()
 
     # Check if data was provided
@@ -262,29 +263,29 @@ def update_recurring_expense(expense_id):
         return jsonify({"msg": str(e)}), 400
 
 
-# @bp.route("/recurring-expenses/<int:expense_id>", methods=["DELETE"])
-# @jwt_required()
-# def delete_recurring_expense(expense_id):
-#     try:
-#         current_user_id = get_current_user_id()
+@bp.route("/recurring-expenses/<int:expense_id>", methods=["DELETE"])
+@jwt_required()
+def delete_recurring_expense(expense_id):
+    try:
+        current_user_id = get_current_user_id()
 
-#         # Find the expense
-#         expense = RecurringExpense.query.filter_by(
-#             id=expense_id, user_id=current_user_id
-#         ).first()
+        # Find the expense
+        expense = RecurringExpense.query.filter_by(
+            id=expense_id, user_id=current_user_id
+        ).first()
 
-#         if not expense:
-#             return jsonify({"msg": "Expense not found."}), 404
+        if not expense:
+            return jsonify({"msg": "Expense not found."}), 404
 
-#         # Delete the expense
-#         db.session.delete(expense)
-#         db.session.commit()
+        # Delete the expense
+        db.session.delete(expense)
+        db.session.commit()
 
-#         return jsonify({"msg": "Recurring expense deleted successfully."}), 200
+        return jsonify({"msg": "Recurring expense deleted successfully."}), 200
 
-#     except Exception as e:
-#         db.session.rollback()
-#         return jsonify({"msg": str(e)}), 400
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"msg": str(e)}), 400
 
 
 # @bp.route("/recurring-expenses/projection", methods=["GET"])
@@ -665,8 +666,8 @@ def add_transaction():
         # Check for fraud
         is_fraud = any(
             [
-                check_high_deviation(current_user_id, amount, timestamp),
-                # check_unusual_category(current_user_id, category, timestamp),
+                # check_high_deviation(current_user_id, amount, timestamp),  # 219 pts
+                check_unusual_category(current_user_id, category, timestamp),
                 # check_rapid_transactions(current_user_id, amount, timestamp),
             ]
         )
