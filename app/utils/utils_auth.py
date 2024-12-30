@@ -61,14 +61,14 @@ def validate_registration_data(data: dict) -> tuple[dict, bool, int]:
     status = False
     code = 400
     # Check if all required fields are present
-    required_fields = ["email", "password", "name"]
-    missing_fields = [field for field in required_fields if field not in data]
-    if missing_fields:
-        return {"msg": "All fields are required."}, status, code
+    # required_fields = ["email", "password", "name"]
+    # missing_fields = [field for field in required_fields if field not in data]
+    # if missing_fields:
+    #     return {"msg": "All fields are required."}, status, code
 
-    # Check for null/empty fields
-    if not all(data.values()):
-        return {"msg": "No empty fields allowed."}, status, code
+    # # Check for null/empty fields
+    # if not all(data.values()):
+    #     return {"msg": "No empty fields allowed."}, status, code
 
     email = data["email"]
     password = data["password"]
