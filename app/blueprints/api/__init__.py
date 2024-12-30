@@ -701,13 +701,13 @@ def add_transaction():
         # Update user balance
         user: User = User.query.get(current_user_id)
 
-        # Subtract amount from balance because positive amount is an expense
-        user.balance -= amount
+        # Update user balance
+        user.balance += amount
         db.session.add(transaction)
         db.session.commit()
 
         # Check alerts after transaction
-        alerts = Alert.query.filter_by(user_id=current_user_id).all()
+        alerts: list[Alert] = Alert.query.filter_by(user_id=current_user_id).all()
 
         for alert in alerts:
             # Check savings goal alerts
