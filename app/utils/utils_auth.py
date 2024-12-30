@@ -75,9 +75,9 @@ def validate_registration_data(data: dict) -> tuple[dict, bool, int]:
     name = data["name"]
 
     # Validate password strength
-    is_valid_password, password_error = validate_password(password)
-    if not is_valid_password:
-        return {"msg": password_error}, status, code
+    # is_valid_password, password_error = validate_password(password)
+    # if not is_valid_password:
+    #     return {"msg": password_error}, status, code
 
     # Validate email format
     if not is_email(email):
