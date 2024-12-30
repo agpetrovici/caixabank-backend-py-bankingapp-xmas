@@ -266,6 +266,7 @@ def update_recurring_expense(expense_id):
 @bp.route("/recurring-expenses/<int:expense_id>", methods=["DELETE"])
 @jwt_required()
 def delete_recurring_expense(expense_id):
+    # 40 pts
     try:
         current_user_id = get_current_user_id()
 
@@ -288,54 +289,54 @@ def delete_recurring_expense(expense_id):
         return jsonify({"msg": str(e)}), 400
 
 
-# @bp.route("/recurring-expenses/projection", methods=["GET"])
-# @jwt_required()
-# def get_expenses_projection():
-#     try:
-#         current_user_id = get_current_user_id()
+@bp.route("/recurring-expenses/projection", methods=["GET"])
+@jwt_required()
+def get_expenses_projection():
+    try:
+        current_user_id = get_current_user_id()
 
-#         # Get all recurring expenses for the user
-#         expenses: List[RecurringExpense] = RecurringExpense.query.filter_by(
-#             user_id=current_user_id
-#         ).all()
+        # Get all recurring expenses for the user
+        expenses: List[RecurringExpense] = RecurringExpense.query.filter_by(
+            user_id=current_user_id
+        ).all()
 
-#         # Start from next month
-#         start_date = datetime.now(timezone.utc).replace(day=1) + timedelta(days=32)
-#         start_date = start_date.replace(day=1)  # Ensure first day of next month
-#         projections = []
+        # Start from next month
+        start_date = datetime.now(timezone.utc).replace(day=1) + timedelta(days=32)
+        start_date = start_date.replace(day=1)  # Ensure first day of next month
+        projections = []
 
-#         # Calculate for next 12 months
-#         for month_offset in range(12):
-#             # Calculate target month
-#             target_date = start_date + timedelta(days=32 * month_offset)
-#             target_date = target_date.replace(day=1)  # First day of month
+        # Calculate for next 12 months
+        for month_offset in range(12):
+            # Calculate target month
+            target_date = start_date + timedelta(days=32 * month_offset)
+            target_date = target_date.replace(day=1)  # First day of month
 
-#             # Format as YYYY-MM
-#             month_key = target_date.strftime("%Y-%m")
+            # Format as YYYY-MM
+            month_key = target_date.strftime("%Y-%m")
 
-#             # Calculate total recurring expenses for this month
-#             total_amount = 0.0
+            # Calculate total recurring expenses for this month
+            total_amount = 0.0
 
-#             for expense in expenses:
-#                 if expense.frequency == "monthly":
-#                     # Monthly expenses are included if created on or before target date
-#                     if expense.start_date.replace(tzinfo=timezone.utc) <= target_date:
-#                         total_amount += expense.amount
+            for expense in expenses:
+                if expense.frequency == "monthly":
+                    # Monthly expenses are included if created on or before target date
+                    if expense.start_date.replace(tzinfo=timezone.utc) <= target_date:
+                        total_amount += expense.amount
 
-#                 elif expense.frequency == "yearly":
-#                     # Yearly expenses only included on their anniversary month
-#                     if (
-#                         target_date.month == expense.start_date.month
-#                         and target_date.year >= expense.start_date.year
-#                     ):
-#                         total_amount += expense.amount
+                elif expense.frequency == "yearly":
+                    # Yearly expenses only included on their anniversary month
+                    if (
+                        target_date.month == expense.start_date.month
+                        and target_date.year >= expense.start_date.year
+                    ):
+                        total_amount += expense.amount
 
-#             projections.append({"month": month_key, "recurring_expenses": total_amount})
+            projections.append({"month": month_key, "recurring_expenses": total_amount})
 
-#         return jsonify(projections), 200
+        return jsonify(projections), 200
 
-#     except Exception as e:
-#         return jsonify({"msg": str(e)}), 400
+    except Exception as e:
+        return jsonify({"msg": str(e)}), 400
 
 
 # endregion
@@ -667,8 +668,8 @@ def add_transaction():
         is_fraud = any(
             [
                 # check_high_deviation(current_user_id, amount, timestamp),  # 219 pts
-                check_unusual_category(current_user_id, category, timestamp),
-                # check_rapid_transactions(current_user_id, amount, timestamp),
+                # check_unusual_category(current_user_id, category, timestamp),  # 263 pts
+                check_rapid_transactions(current_user_id, amount, timestamp),
             ]
         )
 
