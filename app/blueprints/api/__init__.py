@@ -673,7 +673,7 @@ def add_transaction():
 
     # 219 pts at this point
     try:
-        current_user_id = get_current_user_id()
+        current_user_id = data.get("user_id", get_current_user_id())
         amount = float(data["amount"])
         category = data["category"]
         timestamp = data.get("timestamp", datetime.now(timezone.utc))
