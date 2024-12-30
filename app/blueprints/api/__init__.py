@@ -336,6 +336,8 @@ def get_expenses_projection():
 @bp.route("/transfers/simulate", methods=["POST"])
 @jwt_required()
 def simulate_transfer():
+    if not request.is_json:
+        return jsonify({"msg": "Content type must be application/json"}), 415
     data = request.get_json()
 
     # Check if data was provided
@@ -343,7 +345,7 @@ def simulate_transfer():
         return jsonify({"msg": "No empty fields allowed."}), 400
 
     # Check required fields
-    required_fields = ["amount", "currency_from", "currency_to"]
+    required_fields = ["amount", "source_currency", "target_currency"]
     if not all(field in data for field in required_fields):
         return jsonify({"msg": "No empty fields allowed."}), 400
 
@@ -353,8 +355,8 @@ def simulate_transfer():
 
     try:
         amount = float(data["amount"])
-        source_currency = data["currency_from"]
-        target_currency = data["currency_to"]
+        source_currency = data["source_currency"]
+        target_currency = data["target_currency"]
 
         # Get exchange rate and fee
         rate, fee = get_exchange_data(source_currency, target_currency)
@@ -379,8 +381,8 @@ def simulate_transfer():
 @jwt_required()
 def get_transfer_fees():
     # Get query parameters
-    source_currency = request.args.get("currency_from")
-    target_currency = request.args.get("currency_to")
+    source_currency = request.args.get("source_currency")
+    target_currency = request.args.get("target_currency")
 
     # Check if parameters are provided
     if not source_currency or not target_currency:
@@ -405,8 +407,8 @@ def get_transfer_fees():
 @jwt_required()
 def get_exchange_rates():
     # Get query parameters
-    source_currency = request.args.get("currency_from")
-    target_currency = request.args.get("currency_to")
+    source_currency = request.args.get("source_currency")
+    target_currency = request.args.get("target_currency")
 
     # Check if parameters are provided
     if not source_currency or not target_currency:
