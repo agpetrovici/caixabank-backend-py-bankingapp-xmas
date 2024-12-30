@@ -1,4 +1,5 @@
 from datetime import datetime, timezone, timedelta
+from typing import List
 
 
 from flask import Blueprint, request, jsonify
@@ -119,6 +120,9 @@ def get_current_user_id():
 @bp.route("/recurring-expenses", methods=["POST"])
 @jwt_required()
 def add_recurring_expense():
+    if not request.is_json:
+        return jsonify({"msg": "Content type must be application/json"}), 415
+
     data = request.get_json()
 
     # Check if data was provided
@@ -288,7 +292,9 @@ def get_expenses_projection():
         current_user_id = get_current_user_id()
 
         # Get all recurring expenses for the user
-        expenses = RecurringExpense.query.filter_by(user_id=current_user_id).all()
+        expenses: List[RecurringExpense] = RecurringExpense.query.filter_by(
+            user_id=current_user_id
+        ).all()
 
         # Start from current month
         current_date = datetime.now(timezone.utc)
@@ -308,8 +314,9 @@ def get_expenses_projection():
 
             for expense in expenses:
                 if expense.frequency == "monthly":
-                    # Monthly expenses are always included
-                    total_amount += expense.amount
+                    # Monthly expenses are included if created on or before target date
+                    if expense.start_date.replace(tzinfo=timezone.utc) <= target_date:
+                        total_amount += expense.amount
 
                 elif expense.frequency == "yearly":
                     # Yearly expenses only included on their anniversary month
@@ -430,6 +437,7 @@ def get_exchange_rates():
 
 
 # endregion
+
 
 # region task 4
 
@@ -622,6 +630,7 @@ def list_alerts():
 
 
 # endregion
+
 
 # region task 5
 
