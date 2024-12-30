@@ -675,20 +675,21 @@ def add_transaction():
         current_user_id = get_current_user_id()
         amount = float(data["amount"])
         category = data["category"]
-        timestamp = datetime.now(timezone.utc)
+        timestamp = data.get("timestamp", datetime.now(timezone.utc))
+        if isinstance(timestamp, str):
+            timestamp = datetime.fromisoformat(timestamp)
 
         # Check for fraud
-        # is_fraud = any(
-        #     [
-        #         # check_high_deviation(current_user_id, amount, timestamp),  # 0 pts
-        #         # check_unusual_category(current_user_id, category, timestamp),  # 44 pts
-        #         # check_rapid_transactions(current_user_id, amount, timestamp),  # 87 pts
-        #     ]
-        # )
-        is_fraud = False
+        is_fraud = any(
+            [
+                check_high_deviation(current_user_id, amount, timestamp),  # 0 pts
+                # check_unusual_category(current_user_id, category, timestamp),  # 44 pts
+                # check_rapid_transactions(current_user_id, amount, timestamp),  # 87 pts
+            ]
+        )
 
         # Create new transaction
-        new_transaction = Transaction(
+        transaction = Transaction(
             user_id=current_user_id,
             amount=amount,
             category=category,
@@ -697,10 +698,11 @@ def add_transaction():
         )
 
         # Update user balance
-        user = User.query.get(current_user_id)
-        user.balance += amount
+        user: User = User.query.get(current_user_id)
 
-        db.session.add(new_transaction)
+        # Subtract amount from balance because positive amount is an expense
+        user.balance -= amount
+        db.session.add(transaction)
         db.session.commit()
 
         # Check alerts after transaction
@@ -728,7 +730,7 @@ def add_transaction():
         return jsonify(
             {
                 "msg": "Transaction added and evaluated for fraud.",
-                "data": new_transaction.to_dict(),
+                "data": transaction.to_dict(),
             }
         ), 201
 
