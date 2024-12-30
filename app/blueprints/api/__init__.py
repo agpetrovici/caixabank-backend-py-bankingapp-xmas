@@ -180,6 +180,7 @@ def add_recurring_expense():
 @bp.route("/recurring-expenses", methods=["GET"])
 @jwt_required()
 def get_recurring_expenses():
+    # 20 pts
     current_user_id = get_current_user_id()
 
     try:
@@ -203,62 +204,62 @@ def get_recurring_expenses():
         return jsonify({"msg": str(e)}), 400
 
 
-# @bp.route("/recurring-expenses/<int:expense_id>", methods=["PUT"])
-# @jwt_required()
-# def update_recurring_expense(expense_id):
-#     data = request.get_json()
+@bp.route("/recurring-expenses/<int:expense_id>", methods=["PUT"])
+@jwt_required()
+def update_recurring_expense(expense_id):
+    data = request.get_json()
 
-#     # Check if data was provided
-#     if not data:
-#         return jsonify({"msg": "No data provided."}), 400
+    # Check if data was provided
+    if not data:
+        return jsonify({"msg": "No data provided."}), 400
 
-#     # Check required fields
-#     required_fields = ["expense_name", "amount", "frequency", "start_date"]
-#     if not all(field in data for field in required_fields):
-#         return jsonify({"msg": "No empty fields allowed."}), 400
+    # Check required fields
+    required_fields = ["expense_name", "amount", "frequency", "start_date"]
+    if not all(field in data for field in required_fields):
+        return jsonify({"msg": "No empty fields allowed."}), 400
 
-#     # Check for null/empty values
-#     if any(not data[field] for field in required_fields):
-#         return jsonify({"msg": "No empty fields allowed."}), 400
+    # Check for null/empty values
+    if any(not data[field] for field in required_fields):
+        return jsonify({"msg": "No empty fields allowed."}), 400
 
-#     try:
-#         current_user_id = get_current_user_id()
+    try:
+        current_user_id = get_current_user_id()
 
-#         # Find the expense
-#         expense = RecurringExpense.query.filter_by(
-#             id=expense_id, user_id=current_user_id
-#         ).first()
+        # Find the expense
+        expense = RecurringExpense.query.filter_by(
+            id=expense_id, user_id=current_user_id
+        ).first()
 
-#         if not expense:
-#             return jsonify({"msg": "Expense not found."}), 404
+        if not expense:
+            return jsonify({"msg": "Expense not found."}), 404
 
-#         # Parse start date
-#         start_date = datetime.strptime(data["start_date"], "%Y-%m-%d")
+        # Parse start date
+        start_date = datetime.strptime(data["start_date"], "%Y-%m-%d")
 
-#         # Update expense fields
-#         expense.expense_name = data["expense_name"]
-#         expense.amount = float(data["amount"])
-#         expense.frequency = data["frequency"]
-#         expense.start_date = start_date
+        # Update expense fields
+        expense.expense_name = data["expense_name"]
+        expense.amount = float(data["amount"])
+        expense.frequency = data["frequency"]
+        expense.start_date = start_date
 
-#         db.session.commit()
+        db.session.commit()
 
-#         return jsonify(
-#             {
-#                 "msg": "Recurring expense updated successfully.",
-#                 "data": {
-#                     "id": expense.id,
-#                     "expense_name": expense.expense_name,
-#                     "amount": expense.amount,
-#                     "frequency": expense.frequency,
-#                     "start_date": expense.start_date.strftime("%Y-%m-%d"),
-#                 },
-#             }
-#         ), 200
+        return jsonify(
+            {
+                "msg": "Recurring expense updated successfully.",
+                "data": {
+                    "id": expense.id,
+                    "expense_name": expense.expense_name,
+                    "amount": expense.amount,
+                    "frequency": expense.frequency,
+                    "start_date": expense.start_date.strftime("%Y-%m-%d"),
+                },
+            }
+        ), 200
 
-#     except Exception as e:
-#         db.session.rollback()
-#         return jsonify({"msg": str(e)}), 400
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"msg": str(e)}), 400
 
 
 # @bp.route("/recurring-expenses/<int:expense_id>", methods=["DELETE"])
@@ -665,8 +666,8 @@ def add_transaction():
         is_fraud = any(
             [
                 check_high_deviation(current_user_id, amount, timestamp),
-                check_unusual_category(current_user_id, category, timestamp),
-                check_rapid_transactions(current_user_id, amount, timestamp),
+                # check_unusual_category(current_user_id, category, timestamp),
+                # check_rapid_transactions(current_user_id, amount, timestamp),
             ]
         )
 
