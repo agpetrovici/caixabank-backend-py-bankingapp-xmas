@@ -340,7 +340,7 @@ def get_expenses_projection():
             projections.append(
                 {
                     "month": month_key,
-                    "recurring_expenses": total_amount,
+                    # "recurring_expenses": total_amount,
                     "balance": projected_balance,
                 }
             )
