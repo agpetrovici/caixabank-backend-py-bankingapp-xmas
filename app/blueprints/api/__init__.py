@@ -298,8 +298,8 @@ def get_expenses_projection():
 
         # Get all recurring expenses for the user
         # Get current user's balance
-        user = User.query.get(current_user_id)
-        current_balance = user.balance
+        # user = User.query.get(current_user_id)
+        # current_balance = user.balance
         expenses: List[RecurringExpense] = RecurringExpense.query.filter_by(
             user_id=current_user_id
         ).all()
@@ -308,6 +308,7 @@ def get_expenses_projection():
         start_date = datetime.now(timezone.utc).replace(day=1) + timedelta(days=32)
         start_date = start_date.replace(day=1)  # Ensure first day of the month
         projections = []
+        total_amount = 0.0
 
         # Calculate for next 12 months
         for month_offset in range(12):
@@ -319,13 +320,13 @@ def get_expenses_projection():
             month_key = target_date.strftime("%Y-%m")
 
             # Calculate total recurring expenses for this month
-            total_amount = 0.0
+            partial_amount = 0.0
 
             for expense in expenses:
                 if expense.frequency == "monthly":
                     # Monthly expenses are included if created after start_date
                     if expense.start_date.replace(tzinfo=timezone.utc) >= start_date:
-                        total_amount += expense.amount
+                        partial_amount += expense.amount
 
                 elif expense.frequency == "yearly":
                     # Yearly expenses only included on their anniversary month
@@ -333,17 +334,17 @@ def get_expenses_projection():
                         target_date.month == expense.start_date.month
                         and target_date.year >= expense.start_date.year
                     ):
-                        total_amount += expense.amount
+                        partial_amount += expense.amount
 
             # Calculate projected balance by subtracting recurring expenses (because positive values are expenses and negative are income)
-            current_balance -= total_amount
-            current_balance = round(current_balance, 2)
+            # current_balance -= total_amount
+            # current_balance = round(current_balance, 2)
+            total_amount += partial_amount
             projections.append(
                 {
                     "month": month_key,
-                    # "recurring_expenses": total_amount,
+                    "recurring_expenses": total_amount,
                     # "balance": current_balance,
-                    "recurring_expenses": current_balance,
                 }
             )
 
