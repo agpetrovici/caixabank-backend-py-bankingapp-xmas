@@ -1,12 +1,13 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token
+from pyisemail import is_email
 
 from app.utils.utils_auth import (
     generate_hashed_password,
-    validate_registration_data,
     password_matches,
 )
 from app.models import db, User
+
 
 bp = Blueprint("auth", __name__, url_prefix="/api/auth")
 
@@ -16,14 +17,31 @@ bp = Blueprint("auth", __name__, url_prefix="/api/auth")
 
 @bp.route("/register", methods=["POST"])
 def register():
-    raw_data = request.get_json()
+    data = request.get_json()
 
-    # Sanitize input data
+    # Validate data
 
-    # Validate sanitized data
-    data, status, code = validate_registration_data(raw_data)
-    if not status:
-        return data["msg"], code
+    # Check if all required fields are present
+    required_fields = ["email", "password", "name"]
+    missing_fields = [field for field in required_fields if field not in data]
+    if missing_fields:
+        return "All fields are required.", 400
+
+    # Check for null/empty fields
+    if not all(data.values()):
+        return "No empty fields allowed.", 400
+
+    email = data["email"]
+
+    # Validate email format
+    if not is_email(email):
+        return f"Invalid email: {email}", 400
+    # Clean email by converting to lowercase and stripping whitespace
+    email = email.lower().strip()
+
+    # Check if email already exists
+    if User.query.filter_by(email=email).first():
+        return "Email already exists.", 400
 
     # Create new user with sanitized data
     hashed_password = generate_hashed_password(data["password"])
