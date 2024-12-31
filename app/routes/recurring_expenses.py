@@ -12,7 +12,7 @@ def validate_request_data(data, required_fields=None):
     """Validate request data and required fields"""
     if not request.is_json:
         return "Content type must be application/json", 415
-        
+
     if not data:
         return "No data provided.", 400
 
@@ -35,7 +35,7 @@ def create_expense_response(expense, msg):
             "amount": expense.amount,
             "frequency": expense.frequency,
             "start_date": expense.start_date.strftime("%Y-%m-%d"),
-        }
+        },
     }
 
 
@@ -110,9 +110,7 @@ def update_recurring_expense(expense_id):
         if error:
             return jsonify({"msg": error}), code
 
-        expense = RecurringExpense.query.filter_by(
-            id=expense_id, user_id=get_current_user_id()
-        ).first()
+        expense = RecurringExpense.query.filter_by(id=expense_id, user_id=get_current_user_id()).first()
         if not expense:
             return jsonify({"msg": "Expense not found."}), 404
 
@@ -133,9 +131,7 @@ def update_recurring_expense(expense_id):
 @jwt_required()
 def delete_recurring_expense(expense_id):
     def delete():
-        expense = RecurringExpense.query.filter_by(
-            id=expense_id, user_id=get_current_user_id()
-        ).first()
+        expense = RecurringExpense.query.filter_by(id=expense_id, user_id=get_current_user_id()).first()
         if not expense:
             return jsonify({"msg": "Expense not found."}), 404
 
@@ -154,8 +150,7 @@ def calculate_monthly_expenses(expenses: List[RecurringExpense], target_date: da
             if expense.start_date.replace(tzinfo=timezone.utc) >= target_date:
                 partial_amount += expense.amount
         elif expense.frequency == "yearly":
-            if (target_date.month == expense.start_date.month and 
-                target_date.year >= expense.start_date.year):
+            if target_date.month == expense.start_date.month and target_date.year >= expense.start_date.year:
                 partial_amount += expense.amount
     return partial_amount
 
@@ -165,10 +160,10 @@ def calculate_monthly_expenses(expenses: List[RecurringExpense], target_date: da
 def get_expenses_projection():
     def project():
         expenses = RecurringExpense.query.filter_by(user_id=get_current_user_id()).all()
-        
+
         start_date = datetime.now(timezone.utc).replace(day=1) + timedelta(days=32)
         start_date = start_date.replace(day=1)
-        
+
         projections = []
         total_amount = 0.0
 
@@ -176,14 +171,16 @@ def get_expenses_projection():
             target_date = start_date + timedelta(days=32 * month_offset)
             target_date = target_date.replace(day=1)
             month_key = target_date.strftime("%Y-%m")
-            
+
             partial_amount = calculate_monthly_expenses(expenses, target_date)
             total_amount += partial_amount
-            
-            projections.append({
-                "month": month_key,
-                "recurring_expenses": total_amount,
-            })
+
+            projections.append(
+                {
+                    "month": month_key,
+                    "recurring_expenses": total_amount,
+                }
+            )
 
         return jsonify({"data": projections}), 200
 
