@@ -24,7 +24,9 @@ def check_high_deviation(user_id: int, amount: float, timestamp: datetime) -> bo
 
     daily_spends = list(daily_amounts.values())
     avg_daily = sum(daily_spends) / len(daily_spends)
-    std_dev = (sum((x - avg_daily) ** 2 for x in daily_spends) / len(daily_spends)) ** 0.5
+    std_dev = (
+        sum((x - avg_daily) ** 2 for x in daily_spends) / len(daily_spends)
+    ) ** 0.5
 
     # Check if amount exceeds 3 standard deviations
     return amount > (avg_daily + (3 * std_dev))
@@ -64,18 +66,19 @@ def check_rapid_transactions(user_id: int, amount: float, timestamp: datetime) -
         return False
 
     # Calculate daily average spend
-    recent_transactions[0].timestamp
-    # day_ago = timestamp - timedelta(days=1)
+    day_ago = timestamp - timedelta(days=1)
     past_day_transactions = Transaction.query.filter(
         Transaction.user_id == user_id,
-        Transaction.timestamp >= recent_transactions[0].timestamp.replace(hour=0, minute=0, second=0, microsecond=0),
-        Transaction.timestamp < recent_transactions[0].timestamp.replace(hour=23, minute=59, second=59, microsecond=999999),
+        Transaction.timestamp >= day_ago,
+        Transaction.timestamp < timestamp,
     ).all()
 
     if not past_day_transactions:
         return False
 
-    daily_avg = sum(t.amount for t in past_day_transactions) / len(past_day_transactions)
+    daily_avg = sum(t.amount for t in past_day_transactions) / len(
+        past_day_transactions
+    )
 
     # Check if combined recent amounts exceed daily average
     recent_total = sum(t.amount for t in recent_transactions) + amount
