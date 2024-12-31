@@ -10,7 +10,6 @@ package-mode = false
 python = "^3.12"
 flask = "^3.1.0"
 flask-jwt-extended = "^4.7.1"
-flask-login = "^0.6.3"
 flask-mail = "^0.10.0"
 flask-sqlalchemy = "^3.1.1"
 pyisemail = "^2.0.1"

@@ -283,21 +283,6 @@ Werkzeug = ">=0.14"
 asymmetric-crypto = ["cryptography (>=3.3.1)"]
 
 [[package]]
-name = "flask-login"
-version = "0.6.3"
-description = "User authentication and session management for Flask."
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "Flask-Login-0.6.3.tar.gz", hash = "sha256:5e23d14a607ef12806c699590b89d0f0e0d67baeec599d75947bf9c147330333"},
-    {file = "Flask_Login-0.6.3-py3-none-any.whl", hash = "sha256:849b25b82a436bf830a054e74214074af59097171562ab10bfa999e6b78aae5d"},
-]
-
-[package.dependencies]
-Flask = ">=1.0.4"
-Werkzeug = ">=1.0.1"
-
-[[package]]
 name = "flask-mail"
 version = "0.10.0"
 description = "Flask extension for sending email"
@@ -803,4 +788,4 @@ watchdog = ["watchdog (>=2.3)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "b90c4a3f3bbbee10059d9fe8b1a15c668089a249d91e643aaf35603d301f7a85"
+content-hash = "931f3a631bd230c8577d6fd0c0b42424112aed469457ea82129799d29ef917f2"
