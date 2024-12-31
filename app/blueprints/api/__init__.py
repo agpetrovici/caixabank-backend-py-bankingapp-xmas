@@ -80,24 +80,24 @@ def login():
 
     # Check if email and password are provided
     if not data or "email" not in data or "password" not in data:
-        return jsonify({"msg": "Bad credentials."}), 401
+        return "Bad credentials.", 401
 
     email = data.get("email")
     password = data.get("password")
 
     # Check for null/empty fields
     if not email or not password:
-        return jsonify({"msg": "Bad credentials."}), 401
+        return "Bad credentials.", 401
 
     # Find user by email
     user = User.query.filter_by(email=email).first()
 
     if not user:
-        return jsonify({"msg": f"User not found for the given email: {email}"}), 400
+        return f"User not found for the given email: {email}", 400
 
     # Verify password
     if not password_matches(password, user.hashed_password):
-        return jsonify({"msg": "Bad credentials."}), 401
+        return "Bad credentials.", 401
 
     # Create JWT token
     claims = {"user_id": user.id}
