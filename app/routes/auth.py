@@ -16,60 +16,49 @@ bp = Blueprint("auth", __name__, url_prefix="/api/auth")
 # region task 1
 
 
-@bp.route("/register", methods=["POST"])
-def register():
-    raw_data = request.get_json()
-
-    # Sanitize input data
-    data = sanitize_registration_data(raw_data)
-
-    # Validate data
-
-    # Check if all required fields are present
+def validate_registration_data(data):
+    # Check required fields and empty values
     required_fields = ["email", "password", "name"]
-    missing_fields = [field for field in required_fields if field not in data]
-    if missing_fields:
+    if not all(field in data and data[field] for field in required_fields):
         return "All fields are required.", 400
 
-    # Check for null/empty fields
-    if not all(data.values()):
-        return "No empty fields allowed.", 400
-
-    email = data["email"]
-
-    # Validate email format
+    email = data["email"].lower().strip()
     if not is_email(email):
         return f"Invalid email: {email}", 400
-    # Clean email by converting to lowercase and stripping whitespace
-    email = email.lower().strip()
 
-    # Check if email already exists
     if User.query.filter_by(email=email).first():
         return "Email already exists.", 400
 
-    # Create new user with sanitized data
-    hashed_password = generate_hashed_password(data["password"])
-    new_user = User(
-        email=data["email"],
-        name=data["name"],
-        hashed_password=hashed_password,
-        balance=0.0,
-    )
+    return None
 
+
+@bp.route("/register", methods=["POST"])
+def register():
+    raw_data = request.get_json()
+    data = sanitize_registration_data(raw_data)
+
+    validation_error = validate_registration_data(data)
+    if validation_error:
+        return validation_error
+
+    # Create and save new user
     try:
+        hashed_password = generate_hashed_password(data["password"])
+        new_user = User(
+            email=data["email"].lower().strip(),
+            name=data["name"],
+            hashed_password=hashed_password,
+            balance=0.0,
+        )
+
         db.session.add(new_user)
         db.session.commit()
+
+        return jsonify({"name": data["name"], "hashedPassword": hashed_password, "email": data["email"].lower().strip()}), 201
+
     except Exception as e:
         db.session.rollback()
         return jsonify({"msg": str(e)}), 400
-
-    return jsonify(
-        {
-            "name": data["name"],
-            "hashedPassword": hashed_password,
-            "email": data["email"],
-        }
-    ), 201
 
 
 @bp.route("/login", methods=["POST"])
