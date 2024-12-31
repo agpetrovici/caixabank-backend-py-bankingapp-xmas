@@ -40,6 +40,7 @@ def create_app(config_class=Config) -> Flask:
     # Create all tables
     with app.app_context():
         db.create_all()
+
     return app
 
 
