@@ -126,13 +126,16 @@ def handle_auth_operation(operation_func):
 def validate_login_data(data):
     """Validate login credentials"""
     if not data or not all(field in data and data[field] for field in ["email", "password"]):
-        return "Bad credentials.", 401
+        return "Bad credentials.", None, 401
 
     user = User.query.filter_by(email=data["email"]).first()
-    if not user or not password_matches(data["password"], user.hashed_password):
-        return "Bad credentials.", 401
+    if not user:
+        return f"User not found for the given email: {data['email']}", None, 400
 
-    return None, user
+    if not password_matches(data["password"], user.hashed_password):
+        return "Bad credentials.", None, 401
+
+    return None, user, 200
 
 
 def create():
@@ -154,13 +157,13 @@ def create():
 def authenticate():
     data = request.get_json()
 
-    error, user = validate_login_data(data)
+    error, user, code = validate_login_data(data)
     if error:
-        return error, 401
+        return error, code
 
     access_token = create_access_token(
         identity="user_identity",
         additional_claims={"user_id": user.id},
     )
 
-    return jsonify({"token": access_token}), 200
+    return jsonify({"token": access_token}), code
