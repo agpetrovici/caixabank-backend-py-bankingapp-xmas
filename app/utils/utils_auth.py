@@ -8,6 +8,12 @@ import re
 
 from app.models import User
 
+from flask_jwt_extended import get_jwt
+
+
+def get_current_user_id():
+    return get_jwt()["user_id"]
+
 
 def generate_hashed_password(password: str) -> str:
     """

@@ -10,9 +10,13 @@ sys.path.append(str(Path(__file__).parent.parent))
 sys.path.append(str(Path(__file__).parent))
 
 load_dotenv()
-from app.blueprints.api import bp as bp_api  # noqa: E402
 from app.config import Config  # noqa: E402
 from app.models import db  # noqa: E402
+from app.routes.alerts import bp as bp_alerts  # noqa: E402
+from app.routes.auth import bp as bp_auth  # noqa: E402
+from app.routes.recurring_expenses import bp as bp_recurring_expenses  # noqa: E402
+from app.routes.transactions import bp as bp_transactions  # noqa: E402
+from app.routes.transfers import bp as bp_transfers  # noqa: E402
 from app.utils.utils_email import mail  # noqa: E402
 
 
@@ -35,7 +39,11 @@ def create_app(config_class=Config) -> Flask:
     mail.init_app(app)
 
     # Blueprint registration
-    app.register_blueprint(bp_api, url_prefix="/api")
+    app.register_blueprint(bp_alerts)
+    app.register_blueprint(bp_auth)
+    app.register_blueprint(bp_recurring_expenses)
+    app.register_blueprint(bp_transactions)
+    app.register_blueprint(bp_transfers)
 
     # Create all tables
     with app.app_context():
