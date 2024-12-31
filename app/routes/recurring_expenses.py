@@ -97,7 +97,7 @@ def get_recurring_expenses():
         return jsonify({"msg": str(e)}), 400
 
 
-@bp.route("/recurring-expenses/<int:expense_id>", methods=["PUT"])
+@bp.route("/<int:expense_id>", methods=["PUT"])
 @jwt_required()
 def update_recurring_expense(expense_id):
     data = request.get_json()
