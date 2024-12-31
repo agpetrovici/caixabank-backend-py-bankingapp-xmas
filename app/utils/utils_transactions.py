@@ -64,11 +64,12 @@ def check_rapid_transactions(user_id: int, amount: float, timestamp: datetime) -
         return False
 
     # Calculate daily average spend
-    day_ago = timestamp - timedelta(days=1)
+    recent_transactions[0].timestamp
+    # day_ago = timestamp - timedelta(days=1)
     past_day_transactions = Transaction.query.filter(
         Transaction.user_id == user_id,
-        Transaction.timestamp >= day_ago,
-        Transaction.timestamp < timestamp,
+        Transaction.timestamp >= recent_transactions[0].timestamp.replace(hour=0, minute=0, second=0, microsecond=0),
+        Transaction.timestamp < recent_transactions[0].timestamp.replace(hour=23, minute=59, second=59, microsecond=999999),
     ).all()
 
     if not past_day_transactions:
