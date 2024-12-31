@@ -38,9 +38,7 @@ def simulate_transfer():
         rate, fee = get_exchange_data(source_currency, target_currency)
 
         if rate is None or fee is None:
-            return jsonify(
-                {"msg": "Invalid currencies or no exchange data available."}
-            ), 404
+            return jsonify({"msg": "Invalid currencies or no exchange data available."}), 404
 
         # Calculate final amount using formula: target_amount = source_amount × (1-fee) × rate
         final_amount = amount * (1 - fee) * rate
@@ -69,9 +67,7 @@ def get_transfer_fees():
         rate, fee = get_exchange_data(source_currency, target_currency)
 
         if fee is None:
-            return jsonify(
-                {"msg": "No fee information available for these currencies."}
-            ), 404
+            return jsonify({"msg": "No fee information available for these currencies."}), 404
 
         return jsonify({"fee": fee}), 200
 
@@ -95,9 +91,7 @@ def get_exchange_rates():
         rate, fee = get_exchange_data(source_currency, target_currency)
 
         if rate is None:
-            return jsonify(
-                {"msg": "No exchange rate available for these currencies."}
-            ), 404
+            return jsonify({"msg": "No exchange rate available for these currencies."}), 404
 
         return jsonify({"rate": rate}), 200
 

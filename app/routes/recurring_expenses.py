@@ -119,9 +119,7 @@ def update_recurring_expense(expense_id):
         current_user_id = get_current_user_id()
 
         # Find the expense
-        expense = RecurringExpense.query.filter_by(
-            id=expense_id, user_id=current_user_id
-        ).first()
+        expense = RecurringExpense.query.filter_by(id=expense_id, user_id=current_user_id).first()
 
         if not expense:
             return jsonify({"msg": "Expense not found."}), 404
@@ -162,9 +160,7 @@ def delete_recurring_expense(expense_id):
         current_user_id = get_current_user_id()
 
         # Find the expense
-        expense = RecurringExpense.query.filter_by(
-            id=expense_id, user_id=current_user_id
-        ).first()
+        expense = RecurringExpense.query.filter_by(id=expense_id, user_id=current_user_id).first()
 
         if not expense:
             return jsonify({"msg": "Expense not found."}), 404
@@ -190,9 +186,7 @@ def get_expenses_projection():
         # Get current user's balance
         # user = User.query.get(current_user_id)
         # current_balance = user.balance
-        expenses: List[RecurringExpense] = RecurringExpense.query.filter_by(
-            user_id=current_user_id
-        ).all()
+        expenses: List[RecurringExpense] = RecurringExpense.query.filter_by(user_id=current_user_id).all()
 
         # Start from next month
         start_date = datetime.now(timezone.utc).replace(day=1) + timedelta(days=32)
@@ -220,10 +214,7 @@ def get_expenses_projection():
 
                 elif expense.frequency == "yearly":
                     # Yearly expenses only included on their anniversary month
-                    if (
-                        target_date.month == expense.start_date.month
-                        and target_date.year >= expense.start_date.year
-                    ):
+                    if target_date.month == expense.start_date.month and target_date.year >= expense.start_date.year:
                         partial_amount += expense.amount
 
             # Calculate projected balance by subtracting recurring expenses (because positive values are expenses and negative are income)

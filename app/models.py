@@ -41,9 +41,7 @@ class Alert(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     target_amount = db.Column(db.Float, nullable=True)  # For savings goal alerts
     alert_threshold = db.Column(db.Float, nullable=True)  # For savings goal alerts
-    balance_drop_threshold = db.Column(
-        db.Float, nullable=True
-    )  # For balance drop alerts
+    balance_drop_threshold = db.Column(db.Float, nullable=True)  # For balance drop alerts
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
     # Relationship with User model
@@ -73,9 +71,7 @@ class Transaction(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     amount = db.Column(db.Float, nullable=False)
     category = db.Column(db.String(255), nullable=False)
-    timestamp = db.Column(
-        db.DateTime, nullable=False, default=datetime.now(timezone.utc)
-    )
+    timestamp = db.Column(db.DateTime, nullable=False, default=datetime.now(timezone.utc))
     fraud = db.Column(db.Boolean, default=False)
 
     # Relationship with User model

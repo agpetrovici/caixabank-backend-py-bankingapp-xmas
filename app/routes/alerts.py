@@ -131,9 +131,7 @@ def delete_alert():
         current_user_id = get_current_user_id()
 
         # Find the alert
-        alert = Alert.query.filter_by(
-            id=data["alert_id"], user_id=current_user_id
-        ).first()
+        alert = Alert.query.filter_by(id=data["alert_id"], user_id=current_user_id).first()
 
         if not alert:
             return jsonify({"msg": "Alert not found."}), 404
@@ -174,21 +172,13 @@ def list_alerts():
 
             # Add progress info for savings goal alerts
             if alert.target_amount is not None:
-                progress = (
-                    (user.balance / alert.target_amount) * 100
-                    if alert.target_amount > 0
-                    else 0
-                )
+                progress = (user.balance / alert.target_amount) * 100 if alert.target_amount > 0 else 0
                 alert_data["progress"] = round(progress, 2)
-                alert_data["status"] = (
-                    "TRIGGERED" if user.balance >= alert.alert_threshold else "PENDING"
-                )
+                alert_data["status"] = "TRIGGERED" if user.balance >= alert.alert_threshold else "PENDING"
 
             # Add status for balance drop alerts
             if alert.balance_drop_threshold is not None:
-                alert_data["status"] = (
-                    "PENDING"  # Status will be updated when transactions occur
-                )
+                alert_data["status"] = "PENDING"  # Status will be updated when transactions occur
 
             alerts_list.append(alert_data)
 

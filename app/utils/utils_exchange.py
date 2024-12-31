@@ -31,9 +31,7 @@ def load_exchange_data() -> Tuple[dict, dict]:
 EXCHANGE_RATES, EXCHANGE_FEES = load_exchange_data()
 
 
-def get_exchange_data(
-    source: str, target: str
-) -> Tuple[Optional[float], Optional[float]]:
+def get_exchange_data(source: str, target: str) -> Tuple[Optional[float], Optional[float]]:
     """Get exchange rate and fee for a currency pair"""
     key = f"{source}-{target}"
     rate = EXCHANGE_RATES.get(key)
