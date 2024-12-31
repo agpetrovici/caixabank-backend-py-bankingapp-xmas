@@ -5,7 +5,6 @@ from app.utils.utils_auth import (
     generate_hashed_password,
     validate_registration_data,
     password_matches,
-    sanitize_registration_data,
 )
 from app.models import db, User
 
@@ -20,10 +19,9 @@ def register():
     raw_data = request.get_json()
 
     # Sanitize input data
-    sanitized_data = sanitize_registration_data(raw_data)
 
     # Validate sanitized data
-    data, status, code = validate_registration_data(sanitized_data)
+    data, status, code = validate_registration_data(raw_data)
     if not status:
         return data["msg"], code
 
