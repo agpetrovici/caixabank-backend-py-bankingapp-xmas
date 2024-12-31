@@ -346,11 +346,10 @@ def get_expenses_projection():
                 {
                     "month": month_key,
                     "recurring_expenses": total_amount,
-                    # "balance": current_balance,
                 }
             )
 
-        return jsonify(projections), 200
+        return jsonify({"data": projections}), 200
 
     except Exception as e:
         return jsonify({"msg": str(e)}), 400
