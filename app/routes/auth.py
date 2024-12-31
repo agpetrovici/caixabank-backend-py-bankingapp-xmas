@@ -5,6 +5,7 @@ from pyisemail import is_email
 from app.utils.utils_auth import (
     generate_hashed_password,
     password_matches,
+    sanitize_registration_data,
 )
 from app.models import db, User
 
@@ -17,7 +18,10 @@ bp = Blueprint("auth", __name__, url_prefix="/api/auth")
 
 @bp.route("/register", methods=["POST"])
 def register():
-    data = request.get_json()
+    raw_data = request.get_json()
+
+    # Sanitize input data
+    data = sanitize_registration_data(raw_data)
 
     # Validate data
 
