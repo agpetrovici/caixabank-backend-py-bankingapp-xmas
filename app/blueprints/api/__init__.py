@@ -200,7 +200,7 @@ def get_recurring_expenses():
             for expense in expenses
         ]
 
-        return jsonify(expenses_list), 200
+        return jsonify({"data": expenses_list}), 200
 
     except Exception as e:
         return jsonify({"msg": str(e)}), 400
