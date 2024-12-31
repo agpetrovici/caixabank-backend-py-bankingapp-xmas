@@ -46,7 +46,7 @@ def register():
     # Validate sanitized data
     data, status, code = validate_registration_data(sanitized_data)
     if not status:
-        return jsonify(data), code
+        return data["msg"], code
 
     # Create new user with sanitized data
     hashed_password = generate_hashed_password(data["password"])
