@@ -65,32 +65,19 @@ def register():
 def login():
     data = request.get_json()
 
-    # Check if email and password are provided
-    if not data or "email" not in data or "password" not in data:
+    # Validate required fields
+    if not data or not all(field in data and data[field] for field in ["email", "password"]):
         return "Bad credentials.", 401
 
-    email = data.get("email")
-    password = data.get("password")
-
-    # Check for null/empty fields
-    if not email or not password:
+    # Find and validate user
+    user = User.query.filter_by(email=data["email"]).first()
+    if not user or not password_matches(data["password"], user.hashed_password):
         return "Bad credentials.", 401
 
-    # Find user by email
-    user = User.query.filter_by(email=email).first()
-
-    if not user:
-        return f"User not found for the given email: {email}", 400
-
-    # Verify password
-    if not password_matches(password, user.hashed_password):
-        return "Bad credentials.", 401
-
-    # Create JWT token
-    claims = {"user_id": user.id}
+    # Create and return JWT token
     access_token = create_access_token(
         identity="user_identity",
-        additional_claims=claims,
+        additional_claims={"user_id": user.id},
     )
 
     return jsonify({"token": access_token}), 200
